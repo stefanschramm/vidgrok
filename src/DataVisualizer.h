@@ -10,15 +10,16 @@ struct VisualizerConfiguration {
   int width = 800;
   int height = 330;
   int dataChannel = 2;
-  int verticalSyncChannel = 0;
-  int horizontalSyncChannel = 1;
+  int vSyncChannel = 0;
+  int hSyncChannel = 1;
   bool invertData = false;
-  bool invertVerticalSync = false;
-  bool invertHorizontalSync = false;
-  bool disableVerticalSync = false;
-  bool disableHorizontalSync = false;
-  bool hideVerticalSync = false;
-  bool hideHorizontalSync = false;
+  bool invertVSync = false;
+  bool invertHSync = false;
+  bool disableVSync = false;
+  bool disableHSync = false;
+  bool highlightVSync = false;
+  bool highlightHSync = false;
+  bool renderHiddenData = false;
   bool syncedRendering = false;
 };
 
@@ -36,6 +37,7 @@ private:
   void init();
   void processData(uint8_t* data, size_t length);
   inline void render();
+  inline uint32_t getPixelValue(bool vSyncActive, bool hSyncActive, uint8_t data);
 
   DataDispatcher* mDataDispatcher;
   VisualizerConfiguration mConfig;
@@ -45,9 +47,9 @@ private:
   SDL_Texture* texture;
   long int position = 0;
   int dataChannelMask = 0;
-  int verticalSyncChannelMask = 0;
-  int horizontalSyncChannelMask = 0;
+  int vSyncChannelMask = 0;
+  int hSyncChannelMask = 0;
   uint8_t previousSample = 0;
-  bool previousSampleVerticalSyncActive = false;
-  bool previousSampleHorizontalSyncActive = false;
+  bool previousSampleVSyncActive = false;
+  bool previousSampleHSyncActive = false;
 };

@@ -35,15 +35,16 @@ int main(int argc, char** argv) {
     ("width", "Window width", value<int>()->default_value(to_string(visualizerConfig.width)))
     ("height", "Window height", value<int>()->default_value(to_string(visualizerConfig.height)))
     ("data", "Data channel number", value<int>()->default_value(to_string(visualizerConfig.dataChannel)))
-    ("vsync", "Vertical sync channel number", value<int>()->default_value(to_string(visualizerConfig.verticalSyncChannel)))
-    ("hsync", "Horizontal sync channel number", value<int>()->default_value(to_string(visualizerConfig.horizontalSyncChannel)))
+    ("vsync", "Vertical sync channel number", value<int>()->default_value(to_string(visualizerConfig.vSyncChannel)))
+    ("hsync", "Horizontal sync channel number", value<int>()->default_value(to_string(visualizerConfig.hSyncChannel)))
     ("invert-data", "Invert data channel input", value<bool>())
     ("invert-vsync", "Invert vertical sync channel input", value<bool>())
     ("invert-hsync", "Invert horizontal sync channel input", value<bool>())
     ("no-vsync", "Disable vertical synchronisation", value<bool>())
     ("no-hsync", "Disable horizontal synchronisation", value<bool>())
-    ("hide-vsync", "Don't draw vertical synchronisation", value<bool>())
-    ("hide-hsync", "Don't draw horizontal synchronisation", value<bool>())
+    ("highlight-vsync", "Visualize vertical synchronisation", value<bool>())
+    ("highlight-hsync", "Visualize horizontal synchronisation", value<bool>())
+    ("hidden-data", "Render (hidden) data in blanking areas", value<bool>())
     ("synced-rendering", "Render image only on vertical syncs", value<bool>())
     ("s,samplerate", "Sample rate in Hz", value<long unsigned int>()->default_value(to_string(retrieverConfig.sampleRate)))
     ("d,driver", "libsigrok capturing driver to use. First encountered non-demo device is used by default.", value<std::string>()) // example: fx2lafw
@@ -60,23 +61,24 @@ int main(int argc, char** argv) {
   visualizerConfig.width = result["width"].as<int>();
   visualizerConfig.height = result["height"].as<int>();
   visualizerConfig.dataChannel = result["data"].as<int>();
-  visualizerConfig.verticalSyncChannel = result["vsync"].as<int>();
-  visualizerConfig.horizontalSyncChannel = result["hsync"].as<int>();
+  visualizerConfig.vSyncChannel = result["vsync"].as<int>();
+  visualizerConfig.hSyncChannel = result["hsync"].as<int>();
   visualizerConfig.invertData = result["invert-data"].as<bool>();
-  visualizerConfig.invertVerticalSync = result["invert-vsync"].as<bool>();
-  visualizerConfig.invertHorizontalSync = result["invert-hsync"].as<bool>();
-  visualizerConfig.disableVerticalSync = result["no-vsync"].as<bool>();
-  visualizerConfig.disableHorizontalSync = result["no-hsync"].as<bool>();
-  visualizerConfig.hideVerticalSync = result["hide-vsync"].as<bool>();
-  visualizerConfig.hideHorizontalSync = result["hide-hsync"].as<bool>();
+  visualizerConfig.invertVSync = result["invert-vsync"].as<bool>();
+  visualizerConfig.invertHSync = result["invert-hsync"].as<bool>();
+  visualizerConfig.disableVSync = result["no-vsync"].as<bool>();
+  visualizerConfig.disableHSync = result["no-hsync"].as<bool>();
+  visualizerConfig.highlightVSync = result["highlight-vsync"].as<bool>();
+  visualizerConfig.highlightHSync = result["highlight-hsync"].as<bool>();
+  visualizerConfig.renderHiddenData = result["hidden-data"].as<bool>();
   visualizerConfig.syncedRendering = result["synced-rendering"].as<bool>();
 
   retrieverConfig.sampleRate = result["samplerate"].as<long unsigned int>();
   retrieverConfig.driverName = result.count("driver") ? std::optional<std::string>(result["driver"].as<std::string>()) : std::optional<std::string>();
   retrieverConfig.enabledChannels = std::set<int>({
     visualizerConfig.dataChannel,
-    visualizerConfig.verticalSyncChannel,
-    visualizerConfig.horizontalSyncChannel
+    visualizerConfig.vSyncChannel,
+    visualizerConfig.hSyncChannel
   });
 
   DataDispatcher dataDispatcher;

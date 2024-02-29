@@ -11,8 +11,8 @@ DataVisualizer::DataVisualizer(
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
     dataChannelMask(1 << config.dataChannel),
-    verticalSyncChannelMask(1 << config.verticalSyncChannel),
-    horizontalSyncChannelMask(1 << config.horizontalSyncChannel) {
+    vSyncChannelMask(1 << config.vSyncChannel),
+    hSyncChannelMask(1 << config.hSyncChannel) {
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
     throw std::runtime_error("Unable to initialize SDL" + std::string(SDL_GetError()));
@@ -82,10 +82,10 @@ void DataVisualizer::processData(uint8_t* data, size_t length) {
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
   for (size_t i = 0; i < length; i++) {
-    auto verticalSyncActive = mConfig.invertVerticalSync == (data[i] & verticalSyncChannelMask);
-    auto horizontalSyncActive = mConfig.invertHorizontalSync == (data[i] & horizontalSyncChannelMask);
-    auto verticalTriggered = !mConfig.disableVerticalSync && previousSampleVerticalSyncActive && !verticalSyncActive;
-    auto horizontalTriggered = !mConfig.disableHorizontalSync && previousSampleHorizontalSyncActive && !horizontalSyncActive;
+    auto vSyncActive = mConfig.invertVSync == (data[i] & vSyncChannelMask);
+    auto hSyncActive = mConfig.invertHSync == (data[i] & hSyncChannelMask);
+    auto verticalTriggered = !mConfig.disableVSync && previousSampleVSyncActive && !vSyncActive;
+    auto horizontalTriggered = !mConfig.disableHSync && previousSampleHSyncActive && !hSyncActive;
     if (horizontalTriggered) {
       position = position - (position % mConfig.width) + mConfig.width; // start of next line
     }
@@ -97,20 +97,9 @@ void DataVisualizer::processData(uint8_t* data, size_t length) {
         SDL_LockTexture(texture, NULL, &pixels, &pitch);
       }
     }
-    if ((!horizontalSyncActive || !mConfig.hideHorizontalSync) && (!verticalSyncActive || !mConfig.hideVerticalSync)) {
-      // Red
-      auto valueVerticalSync = verticalSyncActive ? 0xff0000ff : 0x00000000;
-      // Blue
-      auto valueHorizontalSync = horizontalSyncActive ? 0x0000ffff : 0x00000000;
-      // White
-      auto valueData = ((bool)(data[i] & dataChannelMask) != mConfig.invertData) ? 0xffffffff : 0x00000000;
-      ((uint32_t*)pixels)[position] = valueVerticalSync | valueHorizontalSync | valueData;
-    } else {
-      // Don't draw blanking areas (if requested so)
-      ((uint32_t*)pixels)[position] = 0;
-    }
-    previousSampleHorizontalSyncActive = horizontalSyncActive;
-    previousSampleVerticalSyncActive = verticalSyncActive;
+    ((uint32_t*)pixels)[position] = getPixelValue(vSyncActive, hSyncActive, data[i]);
+    previousSampleHSyncActive = hSyncActive;
+    previousSampleVSyncActive = vSyncActive;
     position++;
     if (position > mConfig.width * mConfig.height) {
       position = 0;
@@ -126,4 +115,19 @@ void DataVisualizer::render() {
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, texture, NULL, NULL);
   SDL_RenderPresent(renderer);
+}
+
+uint32_t DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, uint8_t data) {
+  uint32_t value = 0;
+  if (mConfig.highlightVSync && vSyncActive) {
+    value |= 0x3f0000ff;
+  }
+  if (mConfig.highlightHSync && hSyncActive) {
+    value |= 0x00003fff;
+  } 
+  if ((!vSyncActive && !hSyncActive) || mConfig.renderHiddenData) {
+    value |= ((bool)(data & dataChannelMask) != mConfig.invertData) ? 0xffffffff : 0x00000000;
+  }
+
+  return value;
 }
