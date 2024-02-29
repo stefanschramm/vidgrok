@@ -4,17 +4,17 @@
 #include <libsigrokcxx/libsigrokcxx.hpp>
 #include <memory>
 
-struct RetrieverConfiguration {
+struct DataSourceConfiguration {
   long unsigned int sampleRate = 12000000;
   std::optional<std::string> driverName = std::optional<std::string>();
   std::set<int> enabledChannels = std::set<int>{0, 1, 2};
 };
 
-class DataRetriever {
+class HardwareDataSource {
 public:
-  DataRetriever(
+  HardwareDataSource(
     DataDispatcher* dataDispatcher,
-    RetrieverConfiguration config
+    DataSourceConfiguration config
   );
   void operator()();
 
@@ -27,7 +27,7 @@ private:
   );
 
   DataDispatcher* mDataDispatcher = nullptr;
-  RetrieverConfiguration mConfig;
+  DataSourceConfiguration mConfig;
 
   std::shared_ptr<sigrok::Context> context = nullptr;
   std::shared_ptr<sigrok::Device> device = nullptr;

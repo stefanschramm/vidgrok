@@ -16,7 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "DataDispatcher.h"
-#include "DataRetriever.h"
+#include "HardwareDataSource.h"
 #include "DataVisualizer.h"
 #include <cxxopts.hpp>
 #include <iostream>
@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
   using cxxopts::value;
 
   VisualizerConfiguration visualizerConfig;
-  RetrieverConfiguration retrieverConfig;
+  DataSourceConfiguration dataSourceConfig;
 
   cxxopts::Options options("vidgrok", "Visualize video data captured by a logic analyzer");
   options.add_options()
@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
     ("highlight-hsync", "Visualize horizontal synchronisation", value<bool>())
     ("hidden-data", "Render (hidden) data in blanking areas", value<bool>())
     ("synced-rendering", "Render image only on vertical syncs", value<bool>())
-    ("s,samplerate", "Sample rate in Hz", value<long unsigned int>()->default_value(to_string(retrieverConfig.sampleRate)))
+    ("s,samplerate", "Sample rate in Hz", value<long unsigned int>()->default_value(to_string(dataSourceConfig.sampleRate)))
     ("d,driver", "libsigrok capturing driver to use. First encountered non-demo device is used by default.", value<std::string>()) // example: fx2lafw
     ("baudrates", "list available baudrates", value<bool>())
     ("h,help", "Print usage")
@@ -73,24 +73,24 @@ int main(int argc, char** argv) {
   visualizerConfig.renderHiddenData = result["hidden-data"].as<bool>();
   visualizerConfig.syncedRendering = result["synced-rendering"].as<bool>();
 
-  retrieverConfig.sampleRate = result["samplerate"].as<long unsigned int>();
-  retrieverConfig.driverName = result.count("driver") ? std::optional<std::string>(result["driver"].as<std::string>()) : std::optional<std::string>();
-  retrieverConfig.enabledChannels = std::set<int>({
+  dataSourceConfig.sampleRate = result["samplerate"].as<long unsigned int>();
+  dataSourceConfig.driverName = result.count("driver") ? std::optional<std::string>(result["driver"].as<std::string>()) : std::optional<std::string>();
+  dataSourceConfig.enabledChannels = std::set<int>({
     visualizerConfig.dataChannel,
     visualizerConfig.vSyncChannel,
     visualizerConfig.hSyncChannel
   });
 
   DataDispatcher dataDispatcher;
-  DataRetriever retriever(&dataDispatcher, retrieverConfig);
+  HardwareDataSource dataSource(&dataDispatcher, dataSourceConfig);
   DataVisualizer visualizer(&dataDispatcher, visualizerConfig);
 
-  std::thread retrieverThread(retriever); // main loop of retriever in 2nd thread
+  std::thread dataSourceThread(dataSource); // main loop of data source
 
   visualizer(); // main loop
   dataDispatcher.close();
 
-  retrieverThread.join();
+  dataSourceThread.join();
 
   return 0;
 }

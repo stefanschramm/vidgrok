@@ -1,9 +1,9 @@
-#include "DataRetriever.h"
+#include "HardwareDataSource.h"
 #include <stdexcept>
 
-DataRetriever::DataRetriever(
+HardwareDataSource::HardwareDataSource(
   DataDispatcher* dataDispatcher,
-  RetrieverConfiguration config
+  DataSourceConfiguration config
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
     context(sigrok::Context::create()),
@@ -16,7 +16,7 @@ DataRetriever::DataRetriever(
   }
 }
 
-void DataRetriever::operator()() {
+void HardwareDataSource::operator()() {
   for (auto channelIndex : mConfig.enabledChannels) {
     device->channels().at(channelIndex)->set_enabled(true);
   }
@@ -36,7 +36,7 @@ void DataRetriever::operator()() {
   device->close();
 }
 
-bool DataRetriever::isValidSampleRate(long unsigned int sampleRate) const {
+bool HardwareDataSource::isValidSampleRate(long unsigned int sampleRate) const {
   auto gvarDict = device->config_list(sigrok::ConfigKey::SAMPLERATE);
 
   const uint64_t* elements = nullptr;
@@ -64,7 +64,7 @@ bool DataRetriever::isValidSampleRate(long unsigned int sampleRate) const {
 }
 
 // Return either the first device with matching driverName or the first non-demo device.
-std::shared_ptr<sigrok::HardwareDevice> DataRetriever::getDevice(std::optional<std::string> driverName) const {
+std::shared_ptr<sigrok::HardwareDevice> HardwareDataSource::getDevice(std::optional<std::string> driverName) const {
   for (auto& [key, driver] : context->drivers()) {
     const auto keys = driver->config_keys();
     if (!keys.count(sigrok::ConfigKey::LOGIC_ANALYZER)) {
@@ -95,7 +95,7 @@ std::shared_ptr<sigrok::HardwareDevice> DataRetriever::getDevice(std::optional<s
   return nullptr;
 }
 
-void DataRetriever::handlePacket(
+void HardwareDataSource::handlePacket(
   [[maybe_unused]] std::shared_ptr<sigrok::Device> device,
   std::shared_ptr<sigrok::Packet> packet
 ) {

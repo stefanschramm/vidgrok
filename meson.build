@@ -12,7 +12,7 @@ project(
 source_files = [
   'src/main.cpp',
   'src/DataDispatcher.cpp',
-  'src/DataRetriever.cpp',
+  'src/HardwareDataSource.cpp',
   'src/DataVisualizer.cpp',
 ]
 
