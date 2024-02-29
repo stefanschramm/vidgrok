@@ -28,3 +28,5 @@ executable(
   dependencies: dependencies,
   install: true,
 )
+
+install_man('doc/vidgrok.1')
