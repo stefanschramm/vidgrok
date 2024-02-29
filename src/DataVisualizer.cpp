@@ -84,8 +84,6 @@ void DataVisualizer::processData(uint8_t* data, size_t length) {
   for (size_t i = 0; i < length; i++) {
     auto verticalSyncActive = mConfig.invertVerticalSync == (data[i] & verticalSyncChannelMask);
     auto horizontalSyncActive = mConfig.invertHorizontalSync == (data[i] & horizontalSyncChannelMask);
-    auto previousSampleVerticalSyncActive = mConfig.invertVerticalSync == (previousSample & verticalSyncChannelMask);
-    auto previousSampleHorizontalSyncActive = mConfig.invertHorizontalSync == (previousSample & horizontalSyncChannelMask);
     auto verticalTriggered = !mConfig.disableVerticalSync && previousSampleVerticalSyncActive && !verticalSyncActive;
     auto horizontalTriggered = !mConfig.disableHorizontalSync && previousSampleHorizontalSyncActive && !horizontalSyncActive;
     if (horizontalTriggered) {
@@ -111,7 +109,8 @@ void DataVisualizer::processData(uint8_t* data, size_t length) {
       // Don't draw blanking areas (if requested so)
       ((uint32_t*)pixels)[position] = 0;
     }
-    previousSample = data[i];
+    previousSampleHorizontalSyncActive = horizontalSyncActive;
+    previousSampleVerticalSyncActive = verticalSyncActive;
     position++;
     if (position > mConfig.width * mConfig.height) {
       position = 0;

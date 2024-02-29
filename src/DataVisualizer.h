@@ -48,4 +48,6 @@ private:
   int verticalSyncChannelMask = 0;
   int horizontalSyncChannelMask = 0;
   uint8_t previousSample = 0;
+  bool previousSampleVerticalSyncActive = false;
+  bool previousSampleHorizontalSyncActive = false;
 };
