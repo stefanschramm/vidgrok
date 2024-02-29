@@ -16,16 +16,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "DataDispatcher.h"
-#include "HardwareDataSource.h"
 #include "DataVisualizer.h"
+#include "HardwareDataSource.h"
 #include <cxxopts.hpp>
 #include <iostream>
 #include <string>
 #include <thread>
 
 int main(int argc, char** argv) {
-  using std::to_string;
   using cxxopts::value;
+  using std::to_string;
 
   VisualizerConfiguration visualizerConfig;
   DataSourceConfiguration dataSourceConfig;
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     dataSourceConfig.enabledChannels = std::set<int>({
       visualizerConfig.dataChannel,
       visualizerConfig.vSyncChannel,
-      visualizerConfig.hSyncChannel
+      visualizerConfig.hSyncChannel,
     });
   } catch (std::exception& e) {
     std::cerr << "Error while processing arguments: " << e.what() << std::endl;
@@ -91,11 +91,14 @@ int main(int argc, char** argv) {
     HardwareDataSource dataSource(&dataDispatcher, dataSourceConfig);
     DataVisualizer visualizer(&dataDispatcher, visualizerConfig);
 
-    std::thread dataSourceThread(dataSource); // main loop of data source
-    visualizer(); // main loop
+    // main loop of data source
+    std::thread dataSourceThread(dataSource);
+
+    // main loop
+    visualizer();
+
     dataDispatcher.close();
     dataSourceThread.join();
-
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 1;
