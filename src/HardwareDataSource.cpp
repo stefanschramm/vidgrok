@@ -1,4 +1,7 @@
 #include "HardwareDataSource.h"
+#include <exception>
+#include <iostream>
+#include <ostream>
 #include <stdexcept>
 
 HardwareDataSource::HardwareDataSource(
@@ -9,7 +12,7 @@ HardwareDataSource::HardwareDataSource(
     context(sigrok::Context::create()),
     device(getDevice(config.driverName)) {
   if (!device) {
-    throw std::runtime_error("Device not found");
+    throw std::runtime_error(mConfig.driverName ? "Device not found." : "No device found.");
   }
   if (!isValidSampleRate(mConfig.sampleRate)) {
     throw std::runtime_error("Sample rate is not valid for this device.");
@@ -17,23 +20,27 @@ HardwareDataSource::HardwareDataSource(
 }
 
 void HardwareDataSource::operator()() {
-  for (auto channelIndex : mConfig.enabledChannels) {
-    device->channels().at(channelIndex)->set_enabled(true);
+  try {
+    for (auto channelIndex : mConfig.enabledChannels) {
+      device->channels().at(channelIndex)->set_enabled(true);
+    }
+    device->open();
+
+    device->config_set(sigrok::ConfigKey::SAMPLERATE, Glib::Variant<guint64>::create(mConfig.sampleRate));
+
+    session = context->create_session();
+    session->add_device(device);
+    session->add_datafeed_callback([=](std::shared_ptr<sigrok::Device> device, std::shared_ptr<sigrok::Packet> packet) {
+      handlePacket(device, packet);
+    });
+    session->start();
+
+    session->run(); // event loop, exited when session->stop() is called
+
+    device->close();
+  } catch (std::exception& e) {
+    std::cerr << "Exception in data source thread: " << e.what() << std::endl;
   }
-  device->open();
-
-  device->config_set(sigrok::ConfigKey::SAMPLERATE, Glib::Variant<guint64>::create(mConfig.sampleRate));
-
-  session = context->create_session();
-  session->add_device(device);
-  session->add_datafeed_callback([=](std::shared_ptr<sigrok::Device> device, std::shared_ptr<sigrok::Packet> packet) {
-    handlePacket(device, packet);
-  });
-  session->start();
-
-  session->run(); // event loop, exited when session->stop() is called
-
-  device->close();
 }
 
 bool HardwareDataSource::isValidSampleRate(long unsigned int sampleRate) const {
