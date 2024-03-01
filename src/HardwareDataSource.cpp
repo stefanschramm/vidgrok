@@ -1,4 +1,5 @@
 #include "HardwareDataSource.h"
+#include "src/DataDispatcher.h"
 #include <exception>
 #include <iostream>
 #include <ostream>
@@ -113,10 +114,10 @@ void HardwareDataSource::handlePacket(
   if (logic->data_length() == 0) {
     throw std::runtime_error("Got packet with 0 samples.");
   }
-  if (logic->unit_size() > 8) {
-    throw std::runtime_error("unit_size > 8.");
+  if (logic->unit_size() > sizeof(Sample)) {
+    throw std::runtime_error("Size of received samples is bigger than expected.");
   }
-  bool stopProducing = !mDataDispatcher.put(Samples((uint8_t*)logic->data_pointer(), logic->data_length()));
+  bool stopProducing = !mDataDispatcher.put(Samples((Sample*)logic->data_pointer(), logic->data_length()));
   if (stopProducing) {
     session->stop();
   }

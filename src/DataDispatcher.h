@@ -7,7 +7,8 @@
 #include <optional>
 #include <span>
 
-using Samples = std::span<uint8_t>;
+using Sample = uint8_t;
+using Samples = std::span<Sample>;
 
 // Construct for synchronizing one producer and one consumer.
 // The producer shall wait until the consumer finished processing the data.

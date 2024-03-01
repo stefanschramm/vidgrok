@@ -43,9 +43,9 @@ private:
   SDL_Window* window;
   SDL_Renderer* renderer;
   SDL_Texture* texture;
-  const int dataChannelMask = 0;
-  const int vSyncChannelMask = 0;
-  const int hSyncChannelMask = 0;
+  const Sample dataChannelMask = 0;
+  const Sample vSyncChannelMask = 0;
+  const Sample hSyncChannelMask = 0;
   long int position = 0;
   bool previousSampleVSyncActive = false;
   bool previousSampleHSyncActive = false;
