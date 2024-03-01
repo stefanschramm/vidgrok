@@ -20,7 +20,9 @@
 #include "HardwareDataSource.h"
 #include <cstdint>
 #include <cxxopts.hpp>
+#include <exception>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <thread>
 
@@ -74,6 +76,17 @@ int main(int argc, char** argv) {
     visualizerConfig.highlightHSync = result["highlight-hsync"].as<bool>();
     visualizerConfig.renderHiddenData = result["hidden-data"].as<bool>();
     visualizerConfig.syncedRendering = result["synced-rendering"].as<bool>();
+
+    auto maxChannels = sizeof(Sample) * 8 - 1;
+    if (visualizerConfig.dataChannel > maxChannels) {
+      throw std::runtime_error(std::string("Maximum value for --data is ") + std::to_string(maxChannels));
+    }
+    if (visualizerConfig.vSyncChannel > maxChannels) {
+      throw std::runtime_error(std::string("Maximum value for --vsync is ") + std::to_string(maxChannels));
+    }
+    if (visualizerConfig.hSyncChannel > maxChannels) {
+      throw std::runtime_error(std::string("Maximum value for --hsync is ") + std::to_string(maxChannels));
+    }
 
     dataSourceConfig.sampleRate = result["samplerate"].as<uint64_t>();
     dataSourceConfig.driverName = result.count("driver") ? std::optional<std::string>(result["driver"].as<std::string>()) : std::optional<std::string>();
