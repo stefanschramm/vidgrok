@@ -47,7 +47,6 @@ private:
   const int vSyncChannelMask = 0;
   const int hSyncChannelMask = 0;
   long int position = 0;
-  uint8_t previousSample = 0;
   bool previousSampleVSyncActive = false;
   bool previousSampleHSyncActive = false;
 };
