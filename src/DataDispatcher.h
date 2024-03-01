@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <optional>
@@ -8,7 +9,7 @@ using Samples = std::pair<uint8_t*, size_t>;
 
 // Construct for synchronizing one producer and one consumer.
 // The producer shall wait until the consumer finished processing the data.
-// The consumer shall not be blocked when no data is available.
+// The consumer shall block a certain time, when no data is available for reading.
 class DataDispatcher {
 public:
   // To be called by producer:
@@ -17,8 +18,8 @@ public:
   bool put(Samples data);
 
   // To be called by consumer:
-  // Get data (non-blocking). Returns empty std::optional when no data is available.
-  std::optional<Samples> get();
+  // Get data. Returns empty std::optional when no data is available and read timeout occurred.
+  std::optional<Samples> get(std::chrono::milliseconds mReadTimeout);
 
   // To be called by consumer:
   // Clear data to allow producer to continue passing data.

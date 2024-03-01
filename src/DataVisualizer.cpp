@@ -53,9 +53,7 @@ DataVisualizer::DataVisualizer(
 
 void DataVisualizer::operator()() {
   while (true) {
-    auto optionalData = mDataDispatcher->get();
-    // TODO: mDataDispatcher->get() should wait with a small timeout until data is available.
-    //       But timeout should be short enough for smooth input event processing.
+    auto optionalData = mDataDispatcher->get(std::chrono::milliseconds(250));
     if (optionalData) {
       processData(
         optionalData.value().first,
@@ -124,7 +122,7 @@ uint32_t DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, uint8
   }
   if (mConfig.highlightHSync && hSyncActive) {
     value |= 0x00003fff;
-  } 
+  }
   if ((!vSyncActive && !hSyncActive) || mConfig.renderHiddenData) {
     value |= ((bool)(data & dataChannelMask) != mConfig.invertData) ? 0xffffffff : 0x00000000;
   }

@@ -1,31 +1,26 @@
 #include "src/DataDispatcher.h"
-#include <stdexcept>
+#include <chrono>
 
 bool DataDispatcher::put(Samples data) {
+  std::lock_guard lock(mutex);
   if (closed) {
-    throw std::runtime_error("DataDispatcher::put() called, but dispatcher has already been closed.");
+    return false; // ignore passed data
   }
-  {
-    std::lock_guard lock(mutex);
-    mData.emplace(data);
-  }
-  {
-    std::unique_lock lk(mutex);
-    conditionVariable.wait(lk, [this] { return !mData.has_value(); });
-  }
+  mData.emplace(data);
+  conditionVariable.notify_one();
 
   return !closed;
 }
 
-std::optional<Samples> DataDispatcher::get() {
+std::optional<Samples> DataDispatcher::get(std::chrono::milliseconds mReadTimeout) {
   std::unique_lock lk(mutex);
+  conditionVariable.wait_for(lk, mReadTimeout, [this] { return mData.has_value(); });
   return mData;
 }
 
 void DataDispatcher::clear() {
   std::unique_lock lk(mutex);
   mData.reset();
-  lk.unlock();
 
   conditionVariable.notify_one();
 }
