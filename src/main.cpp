@@ -18,6 +18,7 @@
 #include "DataDispatcher.h"
 #include "DataVisualizer.h"
 #include "HardwareDataSource.h"
+#include <cstdint>
 #include <cxxopts.hpp>
 #include <iostream>
 #include <string>
@@ -34,9 +35,9 @@ int main(int argc, char** argv) {
   auto addOption = options.add_options(); // not chaining it because of clang-format :/
   addOption("width", "Window width", value<int>()->default_value(to_string(visualizerConfig.width)));
   addOption("height", "Window height", value<int>()->default_value(to_string(visualizerConfig.height)));
-  addOption("data", "Data channel number", value<int>()->default_value(to_string(visualizerConfig.dataChannel)));
-  addOption("vsync", "Vertical sync channel number", value<int>()->default_value(to_string(visualizerConfig.vSyncChannel)));
-  addOption("hsync", "Horizontal sync channel number", value<int>()->default_value(to_string(visualizerConfig.hSyncChannel)));
+  addOption("data", "Data channel number", value<uint8_t>()->default_value(to_string(visualizerConfig.dataChannel)));
+  addOption("vsync", "Vertical sync channel number", value<uint8_t>()->default_value(to_string(visualizerConfig.vSyncChannel)));
+  addOption("hsync", "Horizontal sync channel number", value<uint8_t>()->default_value(to_string(visualizerConfig.hSyncChannel)));
   addOption("invert-data", "Invert data channel input", value<bool>());
   addOption("invert-vsync", "Invert vertical sync channel input", value<bool>());
   addOption("invert-hsync", "Invert horizontal sync channel input", value<bool>());
@@ -61,9 +62,9 @@ int main(int argc, char** argv) {
 
     visualizerConfig.width = result["width"].as<int>();
     visualizerConfig.height = result["height"].as<int>();
-    visualizerConfig.dataChannel = result["data"].as<int>();
-    visualizerConfig.vSyncChannel = result["vsync"].as<int>();
-    visualizerConfig.hSyncChannel = result["hsync"].as<int>();
+    visualizerConfig.dataChannel = result["data"].as<uint8_t>();
+    visualizerConfig.vSyncChannel = result["vsync"].as<uint8_t>();
+    visualizerConfig.hSyncChannel = result["hsync"].as<uint8_t>();
     visualizerConfig.invertData = result["invert-data"].as<bool>();
     visualizerConfig.invertVSync = result["invert-vsync"].as<bool>();
     visualizerConfig.invertHSync = result["invert-hsync"].as<bool>();
@@ -76,7 +77,7 @@ int main(int argc, char** argv) {
 
     dataSourceConfig.sampleRate = result["samplerate"].as<long unsigned int>();
     dataSourceConfig.driverName = result.count("driver") ? std::optional<std::string>(result["driver"].as<std::string>()) : std::optional<std::string>();
-    dataSourceConfig.enabledChannels = std::set<int>({
+    dataSourceConfig.enabledChannels = std::set<uint8_t>({
       visualizerConfig.dataChannel,
       visualizerConfig.vSyncChannel,
       visualizerConfig.hSyncChannel,

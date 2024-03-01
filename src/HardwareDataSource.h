@@ -1,13 +1,14 @@
 #pragma once
 
 #include "DataDispatcher.h"
+#include <cstdint>
 #include <libsigrokcxx/libsigrokcxx.hpp>
 #include <memory>
 
 struct DataSourceConfiguration {
   long unsigned int sampleRate = 12000000;
   std::optional<std::string> driverName = std::optional<std::string>();
-  std::set<int> enabledChannels = std::set<int>{0, 1, 2};
+  std::set<uint8_t> enabledChannels = std::set<uint8_t>{0, 1, 2};
 };
 
 class HardwareDataSource {

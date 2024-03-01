@@ -8,9 +8,9 @@
 struct VisualizerConfiguration {
   int width = 800;
   int height = 330;
-  int dataChannel = 2;
-  int vSyncChannel = 0;
-  int hSyncChannel = 1;
+  uint8_t dataChannel = 2;
+  uint8_t vSyncChannel = 0;
+  uint8_t hSyncChannel = 1;
   bool invertData = false;
   bool invertVSync = false;
   bool invertHSync = false;
