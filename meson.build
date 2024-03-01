@@ -5,7 +5,7 @@ project(
   license : 'GPL-3.0-or-later',
   default_options: [
     'warning_level=3',
-    'cpp_std=c++17',
+    'cpp_std=c++20',
   ],
 )
 

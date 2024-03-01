@@ -2,10 +2,12 @@
 
 #include <chrono>
 #include <condition_variable>
+#include <cstdint>
 #include <mutex>
 #include <optional>
+#include <span>
 
-using Samples = std::pair<uint8_t*, size_t>;
+using Samples = std::span<uint8_t>;
 
 // Construct for synchronizing one producer and one consumer.
 // The producer shall wait until the consumer finished processing the data.

@@ -2,7 +2,6 @@
 
 #include "DataDispatcher.h"
 #include <SDL.h>
-#include <cstddef>
 #include <cstdint>
 
 // Default values should be OK for PAL video
@@ -34,7 +33,7 @@ public:
   void operator()();
 
 private:
-  void processData(uint8_t* data, size_t length);
+  void processData(Samples samples);
   inline void render();
   [[nodiscard]] inline uint32_t getPixelValue(bool vSyncActive, bool hSyncActive, uint8_t data);
 

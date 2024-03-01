@@ -30,7 +30,7 @@ void HardwareDataSource::operator()() {
 
     session = context->create_session();
     session->add_device(device);
-    session->add_datafeed_callback([=](std::shared_ptr<sigrok::Device> device, std::shared_ptr<sigrok::Packet> packet) {
+    session->add_datafeed_callback([this](std::shared_ptr<sigrok::Device> device, std::shared_ptr<sigrok::Packet> packet) {
       handlePacket(device, packet);
     });
     session->start();

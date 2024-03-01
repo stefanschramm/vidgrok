@@ -55,10 +55,7 @@ void DataVisualizer::operator()() {
   while (true) {
     auto optionalData = mDataDispatcher.get(std::chrono::milliseconds(250));
     if (optionalData) {
-      processData(
-        optionalData.value().first,
-        optionalData.value().second
-      );
+      processData(optionalData.value());
       mDataDispatcher.clear();
     }
     SDL_Event event;
@@ -75,13 +72,13 @@ void DataVisualizer::operator()() {
   SDL_Quit();
 }
 
-void DataVisualizer::processData(uint8_t* data, size_t length) {
+void DataVisualizer::processData(Samples samples) {
   void* pixels = nullptr;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  for (size_t i = 0; i < length; i++) {
-    auto vSyncActive = mConfig.invertVSync == (data[i] & vSyncChannelMask);
-    auto hSyncActive = mConfig.invertHSync == (data[i] & hSyncChannelMask);
+  for (auto& sample : samples) {
+    auto vSyncActive = mConfig.invertVSync == (sample & vSyncChannelMask);
+    auto hSyncActive = mConfig.invertHSync == (sample & hSyncChannelMask);
     auto verticalTriggered = !mConfig.disableVSync && previousSampleVSyncActive && !vSyncActive;
     auto horizontalTriggered = !mConfig.disableHSync && previousSampleHSyncActive && !hSyncActive;
     if (horizontalTriggered) {
@@ -95,7 +92,7 @@ void DataVisualizer::processData(uint8_t* data, size_t length) {
         SDL_LockTexture(texture, NULL, &pixels, &pitch);
       }
     }
-    ((uint32_t*)pixels)[position] = getPixelValue(vSyncActive, hSyncActive, data[i]);
+    ((uint32_t*)pixels)[position] = getPixelValue(vSyncActive, hSyncActive, sample);
     previousSampleHSyncActive = hSyncActive;
     previousSampleVSyncActive = vSyncActive;
     position++;
@@ -124,6 +121,7 @@ uint32_t DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, uint8
     value |= 0x00003fff;
   }
   if ((!vSyncActive && !hSyncActive) || mConfig.renderHiddenData) {
+    // TODO: support color by using 3 or 6 channels for data (CGA, EGA)
     value |= ((bool)(data & dataChannelMask) != mConfig.invertData) ? 0xffffffff : 0x00000000;
   }
 
