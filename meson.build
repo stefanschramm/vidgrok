@@ -12,8 +12,9 @@ project(
 source_files = [
   'src/main.cpp',
   'src/DataDispatcher.cpp',
-  'src/HardwareDataSource.cpp',
   'src/DataVisualizer.cpp',
+  'src/HardwareDataSource.cpp',
+  'src/OptionProcessing.cpp',
 ]
 
 dependencies = [

@@ -18,83 +18,21 @@
 #include "DataDispatcher.h"
 #include "DataVisualizer.h"
 #include "HardwareDataSource.h"
-#include <cstdint>
+#include "OptionProcessing.h"
 #include <cxxopts.hpp>
 #include <exception>
 #include <iostream>
-#include <stdexcept>
-#include <string>
 #include <thread>
 
 int main(int argc, char** argv) {
-  using cxxopts::value;
-  using std::to_string;
-
-  VisualizerConfiguration visualizerConfig;
-  DataSourceConfiguration dataSourceConfig;
-
-  cxxopts::Options options("vidgrok", "Visualize video data captured by a logic analyzer");
-  auto addOption = options.add_options(); // not chaining it because of clang-format :/
-  addOption("width", "Window width", value<int>()->default_value(to_string(visualizerConfig.width)));
-  addOption("height", "Window height", value<int>()->default_value(to_string(visualizerConfig.height)));
-  addOption("data", "Data channel number", value<uint8_t>()->default_value(to_string(visualizerConfig.dataChannel)));
-  addOption("vsync", "Vertical sync channel number", value<uint8_t>()->default_value(to_string(visualizerConfig.vSyncChannel)));
-  addOption("hsync", "Horizontal sync channel number", value<uint8_t>()->default_value(to_string(visualizerConfig.hSyncChannel)));
-  addOption("invert-data", "Invert data channel input", value<bool>());
-  addOption("invert-vsync", "Invert vertical sync channel input", value<bool>());
-  addOption("invert-hsync", "Invert horizontal sync channel input", value<bool>());
-  addOption("no-vsync", "Disable vertical synchronisation", value<bool>());
-  addOption("no-hsync", "Disable horizontal synchronisation", value<bool>());
-  addOption("highlight-vsync", "Visualize vertical synchronisation", value<bool>());
-  addOption("highlight-hsync", "Visualize horizontal synchronisation", value<bool>());
-  addOption("hidden-data", "Render (hidden) data in blanking areas", value<bool>());
-  addOption("synced-rendering", "Render image only on vertical syncs", value<bool>());
-  addOption("s,samplerate", "Sample rate in Hz", value<uint64_t>()->default_value(to_string(dataSourceConfig.sampleRate)));
-  addOption("d,driver", "libsigrok capturing driver to use. First encountered non-demo device is used by default.", value<std::string>()); // example: fx2lafw
-  addOption("baudrates", "list available baudrates", value<bool>());
-  addOption("h,help", "Print usage");
+  ProgramConfiguration programConfig;
 
   try {
-    auto result = options.parse(argc, argv);
-
-    if (result.count("help")) {
-      std::cout << options.help() << std::endl;
-      return 0;
+    auto optionalProgramConfiguration = OptionProcessing::process(argc, argv);
+    if (!optionalProgramConfiguration) {
+      return 0; // help has been displayed
     }
-
-    visualizerConfig.width = result["width"].as<int>();
-    visualizerConfig.height = result["height"].as<int>();
-    visualizerConfig.dataChannel = result["data"].as<uint8_t>();
-    visualizerConfig.vSyncChannel = result["vsync"].as<uint8_t>();
-    visualizerConfig.hSyncChannel = result["hsync"].as<uint8_t>();
-    visualizerConfig.invertData = result["invert-data"].as<bool>();
-    visualizerConfig.invertVSync = result["invert-vsync"].as<bool>();
-    visualizerConfig.invertHSync = result["invert-hsync"].as<bool>();
-    visualizerConfig.disableVSync = result["no-vsync"].as<bool>();
-    visualizerConfig.disableHSync = result["no-hsync"].as<bool>();
-    visualizerConfig.highlightVSync = result["highlight-vsync"].as<bool>();
-    visualizerConfig.highlightHSync = result["highlight-hsync"].as<bool>();
-    visualizerConfig.renderHiddenData = result["hidden-data"].as<bool>();
-    visualizerConfig.syncedRendering = result["synced-rendering"].as<bool>();
-
-    auto maxChannels = sizeof(Sample) * 8 - 1;
-    if (visualizerConfig.dataChannel > maxChannels) {
-      throw std::runtime_error(std::string("Maximum value for --data is ") + std::to_string(maxChannels));
-    }
-    if (visualizerConfig.vSyncChannel > maxChannels) {
-      throw std::runtime_error(std::string("Maximum value for --vsync is ") + std::to_string(maxChannels));
-    }
-    if (visualizerConfig.hSyncChannel > maxChannels) {
-      throw std::runtime_error(std::string("Maximum value for --hsync is ") + std::to_string(maxChannels));
-    }
-
-    dataSourceConfig.sampleRate = result["samplerate"].as<uint64_t>();
-    dataSourceConfig.driverName = result.count("driver") ? std::optional<std::string>(result["driver"].as<std::string>()) : std::optional<std::string>();
-    dataSourceConfig.enabledChannels = std::set<uint8_t>({
-      visualizerConfig.dataChannel,
-      visualizerConfig.vSyncChannel,
-      visualizerConfig.hSyncChannel,
-    });
+    programConfig = optionalProgramConfiguration.value();
   } catch (std::exception& e) {
     std::cerr << "Error while processing arguments: " << e.what() << std::endl;
     return 1;
@@ -102,8 +40,8 @@ int main(int argc, char** argv) {
 
   try {
     DataDispatcher dataDispatcher;
-    HardwareDataSource dataSource(dataDispatcher, dataSourceConfig);
-    DataVisualizer visualizer(dataDispatcher, visualizerConfig);
+    HardwareDataSource dataSource(dataDispatcher, programConfig.dataSourceConfig);
+    DataVisualizer visualizer(dataDispatcher, programConfig.visualizerConfig);
 
     // main loop of data source
     std::thread dataSourceThread(dataSource);

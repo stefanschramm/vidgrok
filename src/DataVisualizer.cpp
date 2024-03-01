@@ -7,7 +7,7 @@
 
 DataVisualizer::DataVisualizer(
   DataDispatcher& dataDispatcher,
-  VisualizerConfiguration config
+  const VisualizerConfiguration& config
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
     dataChannelMask(1 << config.dataChannel),

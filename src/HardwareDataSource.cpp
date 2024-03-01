@@ -7,7 +7,7 @@
 
 HardwareDataSource::HardwareDataSource(
   DataDispatcher& dataDispatcher,
-  DataSourceConfiguration config
+  const DataSourceConfiguration& config
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
     context(sigrok::Context::create()),

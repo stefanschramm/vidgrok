@@ -26,7 +26,7 @@ class DataVisualizer {
 public:
   DataVisualizer(
     DataDispatcher& dataDispatcher,
-    VisualizerConfiguration config
+    const VisualizerConfiguration& config
   );
 
   // Main loop
@@ -38,7 +38,7 @@ private:
   [[nodiscard]] inline uint32_t getPixelValue(bool vSyncActive, bool hSyncActive, uint8_t data);
 
   DataDispatcher& mDataDispatcher;
-  const VisualizerConfiguration mConfig;
+  const VisualizerConfiguration& mConfig;
 
   SDL_Window* window;
   SDL_Renderer* renderer;

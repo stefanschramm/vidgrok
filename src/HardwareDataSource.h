@@ -15,7 +15,7 @@ class HardwareDataSource {
 public:
   HardwareDataSource(
     DataDispatcher& dataDispatcher,
-    DataSourceConfiguration config
+    const DataSourceConfiguration& config
   );
   void operator()();
 
@@ -28,7 +28,7 @@ private:
   );
 
   DataDispatcher& mDataDispatcher;
-  const DataSourceConfiguration mConfig;
+  const DataSourceConfiguration& mConfig;
 
   std::shared_ptr<sigrok::Context> context = nullptr;
   std::shared_ptr<sigrok::Device> device = nullptr;
