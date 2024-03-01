@@ -77,10 +77,10 @@ void DataVisualizer::processData(Samples samples) {
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
   for (auto& sample : samples) {
-    auto vSyncActive = mConfig.invertVSync == (sample & vSyncChannelMask);
-    auto hSyncActive = mConfig.invertHSync == (sample & hSyncChannelMask);
-    auto verticalTriggered = !mConfig.disableVSync && previousSampleVSyncActive && !vSyncActive;
-    auto horizontalTriggered = !mConfig.disableHSync && previousSampleHSyncActive && !hSyncActive;
+    bool vSyncActive = mConfig.invertVSync == (sample & vSyncChannelMask);
+    bool hSyncActive = mConfig.invertHSync == (sample & hSyncChannelMask);
+    bool verticalTriggered = !mConfig.disableVSync && previousSampleVSyncActive && !vSyncActive;
+    bool horizontalTriggered = !mConfig.disableHSync && previousSampleHSyncActive && !hSyncActive;
     if (horizontalTriggered) {
       position = position - (position % mConfig.width) + mConfig.width; // start of next line
     }
