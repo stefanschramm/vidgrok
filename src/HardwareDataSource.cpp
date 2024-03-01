@@ -43,7 +43,7 @@ void HardwareDataSource::operator()() {
   }
 }
 
-bool HardwareDataSource::isValidSampleRate(long unsigned int sampleRate) const {
+bool HardwareDataSource::isValidSampleRate(uint64_t sampleRate) const {
   auto gvarDict = device->config_list(sigrok::ConfigKey::SAMPLERATE);
 
   const uint64_t* elements = nullptr;
@@ -57,7 +57,7 @@ bool HardwareDataSource::isValidSampleRate(long unsigned int sampleRate) const {
   );
   if (gvarList) {
     elements = (const uint64_t*)g_variant_get_fixed_array(gvarList, &numElements, sizeof(uint64_t));
-    for (long unsigned int i = 0; i < numElements; i++) {
+    for (gsize i = 0; i < numElements; i++) {
       if (elements[i] == sampleRate) {
         return true;
       }

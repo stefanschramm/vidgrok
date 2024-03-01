@@ -6,7 +6,7 @@
 #include <memory>
 
 struct DataSourceConfiguration {
-  long unsigned int sampleRate = 12000000;
+  uint64_t sampleRate = 12000000;
   std::optional<std::string> driverName = std::optional<std::string>();
   std::set<uint8_t> enabledChannels = std::set<uint8_t>{0, 1, 2};
 };
@@ -21,7 +21,7 @@ public:
 
 private:
   [[nodiscard]] std::shared_ptr<sigrok::HardwareDevice> getDevice(std::optional<std::string> driverName) const;
-  [[nodiscard]] bool isValidSampleRate(long unsigned int sampleRate) const;
+  [[nodiscard]] bool isValidSampleRate(uint64_t sampleRate) const;
   void handlePacket(
     [[maybe_unused]] std::shared_ptr<sigrok::Device> device,
     std::shared_ptr<sigrok::Packet> packet

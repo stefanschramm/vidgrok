@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   addOption("highlight-hsync", "Visualize horizontal synchronisation", value<bool>());
   addOption("hidden-data", "Render (hidden) data in blanking areas", value<bool>());
   addOption("synced-rendering", "Render image only on vertical syncs", value<bool>());
-  addOption("s,samplerate", "Sample rate in Hz", value<long unsigned int>()->default_value(to_string(dataSourceConfig.sampleRate)));
+  addOption("s,samplerate", "Sample rate in Hz", value<uint64_t>()->default_value(to_string(dataSourceConfig.sampleRate)));
   addOption("d,driver", "libsigrok capturing driver to use. First encountered non-demo device is used by default.", value<std::string>()); // example: fx2lafw
   addOption("baudrates", "list available baudrates", value<bool>());
   addOption("h,help", "Print usage");
@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
     visualizerConfig.renderHiddenData = result["hidden-data"].as<bool>();
     visualizerConfig.syncedRendering = result["synced-rendering"].as<bool>();
 
-    dataSourceConfig.sampleRate = result["samplerate"].as<long unsigned int>();
+    dataSourceConfig.sampleRate = result["samplerate"].as<uint64_t>();
     dataSourceConfig.driverName = result.count("driver") ? std::optional<std::string>(result["driver"].as<std::string>()) : std::optional<std::string>();
     dataSourceConfig.enabledChannels = std::set<uint8_t>({
       visualizerConfig.dataChannel,
