@@ -13,21 +13,21 @@ struct DataSourceConfiguration {
 class HardwareDataSource {
 public:
   HardwareDataSource(
-    DataDispatcher* dataDispatcher,
+    DataDispatcher& dataDispatcher,
     DataSourceConfiguration config
   );
   void operator()();
 
 private:
   [[nodiscard]] std::shared_ptr<sigrok::HardwareDevice> getDevice(std::optional<std::string> driverName) const;
-  bool isValidSampleRate(long unsigned int sampleRate) const;
+  [[nodiscard]] bool isValidSampleRate(long unsigned int sampleRate) const;
   void handlePacket(
     [[maybe_unused]] std::shared_ptr<sigrok::Device> device,
     std::shared_ptr<sigrok::Packet> packet
   );
 
-  DataDispatcher* mDataDispatcher = nullptr;
-  DataSourceConfiguration mConfig;
+  DataDispatcher& mDataDispatcher;
+  const DataSourceConfiguration mConfig;
 
   std::shared_ptr<sigrok::Context> context = nullptr;
   std::shared_ptr<sigrok::Device> device = nullptr;

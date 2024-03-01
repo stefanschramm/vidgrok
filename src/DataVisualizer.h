@@ -26,7 +26,7 @@ struct VisualizerConfiguration {
 class DataVisualizer {
 public:
   DataVisualizer(
-    DataDispatcher* dataDispatcher,
+    DataDispatcher& dataDispatcher,
     VisualizerConfiguration config
   );
 
@@ -34,21 +34,20 @@ public:
   void operator()();
 
 private:
-  void init();
   void processData(uint8_t* data, size_t length);
   inline void render();
-  inline uint32_t getPixelValue(bool vSyncActive, bool hSyncActive, uint8_t data);
+  [[nodiscard]] inline uint32_t getPixelValue(bool vSyncActive, bool hSyncActive, uint8_t data);
 
-  DataDispatcher* mDataDispatcher;
-  VisualizerConfiguration mConfig;
+  DataDispatcher& mDataDispatcher;
+  const VisualizerConfiguration mConfig;
 
   SDL_Window* window;
   SDL_Renderer* renderer;
   SDL_Texture* texture;
+  const int dataChannelMask = 0;
+  const int vSyncChannelMask = 0;
+  const int hSyncChannelMask = 0;
   long int position = 0;
-  int dataChannelMask = 0;
-  int vSyncChannelMask = 0;
-  int hSyncChannelMask = 0;
   uint8_t previousSample = 0;
   bool previousSampleVSyncActive = false;
   bool previousSampleHSyncActive = false;

@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 DataVisualizer::DataVisualizer(
-  DataDispatcher* dataDispatcher,
+  DataDispatcher& dataDispatcher,
   VisualizerConfiguration config
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
@@ -53,13 +53,13 @@ DataVisualizer::DataVisualizer(
 
 void DataVisualizer::operator()() {
   while (true) {
-    auto optionalData = mDataDispatcher->get(std::chrono::milliseconds(250));
+    auto optionalData = mDataDispatcher.get(std::chrono::milliseconds(250));
     if (optionalData) {
       processData(
         optionalData.value().first,
         optionalData.value().second
       );
-      mDataDispatcher->clear();
+      mDataDispatcher.clear();
     }
     SDL_Event event;
     if (SDL_PollEvent(&event)) {

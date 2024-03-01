@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 HardwareDataSource::HardwareDataSource(
-  DataDispatcher* dataDispatcher,
+  DataDispatcher& dataDispatcher,
   DataSourceConfiguration config
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
@@ -116,7 +116,7 @@ void HardwareDataSource::handlePacket(
   if (logic->unit_size() > 8) {
     throw std::runtime_error("unit_size > 8.");
   }
-  bool stopProducing = !mDataDispatcher->put(Samples((uint8_t*)logic->data_pointer(), logic->data_length()));
+  bool stopProducing = !mDataDispatcher.put(Samples((uint8_t*)logic->data_pointer(), logic->data_length()));
   if (stopProducing) {
     session->stop();
   }

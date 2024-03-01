@@ -88,8 +88,8 @@ int main(int argc, char** argv) {
 
   try {
     DataDispatcher dataDispatcher;
-    HardwareDataSource dataSource(&dataDispatcher, dataSourceConfig);
-    DataVisualizer visualizer(&dataDispatcher, visualizerConfig);
+    HardwareDataSource dataSource(dataDispatcher, dataSourceConfig);
+    DataVisualizer visualizer(dataDispatcher, visualizerConfig);
 
     // main loop of data source
     std::thread dataSourceThread(dataSource);
