@@ -15,6 +15,7 @@ source_files = [
   'src/DataVisualizer.cpp',
   'src/HardwareDataSource.cpp',
   'src/OptionProcessing.cpp',
+  'src/SdlWrapper.cpp',
 ]
 
 dependencies = [
