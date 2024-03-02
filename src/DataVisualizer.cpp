@@ -1,5 +1,4 @@
 #include "DataVisualizer.h"
-#include <SDL.h>
 
 DataVisualizer::DataVisualizer(
   DataDispatcher& dataDispatcher,
