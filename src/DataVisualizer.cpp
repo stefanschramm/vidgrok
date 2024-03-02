@@ -16,7 +16,7 @@ void DataVisualizer::operator()() {
   while (true) {
     auto optionalData = mDataDispatcher.get(std::chrono::milliseconds(250));
     if (optionalData) {
-      processData(optionalData.value());
+      process(optionalData.value());
       mDataDispatcher.clear();
     }
 
@@ -26,7 +26,7 @@ void DataVisualizer::operator()() {
   }
 }
 
-void DataVisualizer::processData(Samples samples) {
+void DataVisualizer::process(Samples samples) {
   Pixel* pixels = nullptr;
 
   sdlWrapper.lockTexture(&pixels);

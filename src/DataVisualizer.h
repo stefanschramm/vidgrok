@@ -33,8 +33,7 @@ public:
   void operator()();
 
 private:
-  void processData(Samples samples);
-  inline void render();
+  inline void process(Samples samples);
   [[nodiscard]] inline Pixel getPixelValue(bool vSyncActive, bool hSyncActive, Sample data);
 
   DataDispatcher& mDataDispatcher;
