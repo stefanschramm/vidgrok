@@ -7,9 +7,9 @@ DataVisualizer::DataVisualizer(
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
     sdlWrapper(mConfig.width, mConfig.height),
-    dataChannelMask(1 << config.dataChannel),
-    vSyncChannelMask(1 << config.vSyncChannel),
-    hSyncChannelMask(1 << config.hSyncChannel) {
+    dataChannelMask(1 << mConfig.dataChannel),
+    vSyncChannelMask(1 << mConfig.vSyncChannel),
+    hSyncChannelMask(1 << mConfig.hSyncChannel) {
 }
 
 void DataVisualizer::operator()() {
@@ -19,6 +19,7 @@ void DataVisualizer::operator()() {
       processData(optionalData.value());
       mDataDispatcher.clear();
     }
+
     if (sdlWrapper.pollEvent() == Event::QUIT) {
       break;
     }
@@ -27,15 +28,19 @@ void DataVisualizer::operator()() {
 
 void DataVisualizer::processData(Samples samples) {
   Pixel* pixels = nullptr;
+
   sdlWrapper.lockTexture(&pixels);
+
   for (auto& sample : samples) {
     bool vSyncActive = mConfig.invertVSync == (sample & vSyncChannelMask);
     bool hSyncActive = mConfig.invertHSync == (sample & hSyncChannelMask);
     bool verticalTriggered = !mConfig.disableVSync && previousSampleVSyncActive && !vSyncActive;
     bool horizontalTriggered = !mConfig.disableHSync && previousSampleHSyncActive && !hSyncActive;
+
     if (horizontalTriggered) {
       position = position - (position % mConfig.width) + mConfig.width; // start of next line
     }
+
     if (verticalTriggered) {
       position = 0; // start of frame
       if (mConfig.syncedRendering) {
@@ -44,15 +49,20 @@ void DataVisualizer::processData(Samples samples) {
         sdlWrapper.lockTexture(&pixels);
       }
     }
+
     pixels[position] = getPixelValue(vSyncActive, hSyncActive, sample);
+
     previousSampleHSyncActive = hSyncActive;
     previousSampleVSyncActive = vSyncActive;
+
     position++;
     if (position > mConfig.width * mConfig.height) {
       position = 0;
     }
   }
+
   sdlWrapper.unlockTexture();
+
   if (!mConfig.syncedRendering) {
     sdlWrapper.render();
   }

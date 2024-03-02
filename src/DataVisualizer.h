@@ -29,7 +29,7 @@ public:
     const VisualizerConfiguration& config
   );
 
-  // Main loop
+  // Main loop: Fetches new samples (if available), processes/renders them and handles events.
   void operator()();
 
 private:

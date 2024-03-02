@@ -11,7 +11,7 @@ HardwareDataSource::HardwareDataSource(
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
     context(sigrok::Context::create()),
-    device(getDevice(config.driverName)) {
+    device(getDevice(mConfig.driverName)) {
   if (!device) {
     throw std::runtime_error(mConfig.driverName ? "Device not found." : "No device found.");
   }
