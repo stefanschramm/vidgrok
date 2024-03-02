@@ -1,54 +1,15 @@
 #include "DataVisualizer.h"
-#include "SDL_pixels.h"
-#include "SDL_video.h"
 #include <SDL.h>
-#include <cstdint>
-#include <stdexcept>
 
 DataVisualizer::DataVisualizer(
   DataDispatcher& dataDispatcher,
   const VisualizerConfiguration& config
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
+    sdlWrapper(mConfig.width, mConfig.height),
     dataChannelMask(1 << config.dataChannel),
     vSyncChannelMask(1 << config.vSyncChannel),
     hSyncChannelMask(1 << config.hSyncChannel) {
-
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
-    throw std::runtime_error("Unable to initialize SDL" + std::string(SDL_GetError()));
-  }
-
-  window = SDL_CreateWindow(
-    "Signal Visualization",
-    SDL_WINDOWPOS_UNDEFINED,
-    SDL_WINDOWPOS_UNDEFINED,
-    mConfig.width,
-    mConfig.height,
-    SDL_WINDOW_OPENGL
-  );
-  if (window == NULL) {
-    throw std::runtime_error("Unable to create SDL window");
-  }
-
-  renderer = SDL_CreateRenderer(
-    window,
-    -1,
-    SDL_RENDERER_ACCELERATED
-  );
-  if (renderer == NULL) {
-    throw std::runtime_error("Unable to create SDL renderer");
-  }
-
-  texture = SDL_CreateTexture(
-    renderer,
-    SDL_PIXELFORMAT_RGBA8888,
-    SDL_TEXTUREACCESS_STREAMING,
-    mConfig.width,
-    mConfig.height
-  );
-  if (texture == NULL) {
-    throw std::runtime_error("Unable to create SDL texture");
-  }
 }
 
 void DataVisualizer::operator()() {
@@ -58,24 +19,15 @@ void DataVisualizer::operator()() {
       processData(optionalData.value());
       mDataDispatcher.clear();
     }
-    SDL_Event event;
-    if (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
-        break;
-      }
+    if (sdlWrapper.pollEvent() == Event::QUIT) {
+      break;
     }
   }
-
-  SDL_DestroyTexture(texture);
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
 }
 
 void DataVisualizer::processData(Samples samples) {
-  void* pixels = nullptr;
-  int pitch;
-  SDL_LockTexture(texture, NULL, &pixels, &pitch);
+  Pixel* pixels = nullptr;
+  sdlWrapper.lockTexture(&pixels);
   for (auto& sample : samples) {
     bool vSyncActive = mConfig.invertVSync == (sample & vSyncChannelMask);
     bool hSyncActive = mConfig.invertHSync == (sample & hSyncChannelMask);
@@ -87,12 +39,12 @@ void DataVisualizer::processData(Samples samples) {
     if (verticalTriggered) {
       position = 0; // start of frame
       if (mConfig.syncedRendering) {
-        SDL_UnlockTexture(texture);
-        render();
-        SDL_LockTexture(texture, NULL, &pixels, &pitch);
+        sdlWrapper.unlockTexture();
+        sdlWrapper.render();
+        sdlWrapper.lockTexture(&pixels);
       }
     }
-    ((uint32_t*)pixels)[position] = getPixelValue(vSyncActive, hSyncActive, sample);
+    pixels[position] = getPixelValue(vSyncActive, hSyncActive, sample);
     previousSampleHSyncActive = hSyncActive;
     previousSampleVSyncActive = vSyncActive;
     position++;
@@ -100,20 +52,14 @@ void DataVisualizer::processData(Samples samples) {
       position = 0;
     }
   }
-  SDL_UnlockTexture(texture);
+  sdlWrapper.unlockTexture();
   if (!mConfig.syncedRendering) {
-    render();
+    sdlWrapper.render();
   }
 }
 
-void DataVisualizer::render() {
-  SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, texture, NULL, NULL);
-  SDL_RenderPresent(renderer);
-}
-
-uint32_t DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, uint8_t data) {
-  uint32_t value = 0;
+Pixel DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, Sample data) {
+  Pixel value = 0;
   if (mConfig.highlightVSync && vSyncActive) {
     value |= 0x3f0000ff;
   }

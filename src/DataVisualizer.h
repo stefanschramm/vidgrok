@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataDispatcher.h"
-#include <SDL.h>
+#include "SdlWrapper.h"
 #include <cstdint>
 
 // Default values should be OK for PAL video
@@ -35,14 +35,13 @@ public:
 private:
   void processData(Samples samples);
   inline void render();
-  [[nodiscard]] inline uint32_t getPixelValue(bool vSyncActive, bool hSyncActive, uint8_t data);
+  [[nodiscard]] inline Pixel getPixelValue(bool vSyncActive, bool hSyncActive, Sample data);
 
   DataDispatcher& mDataDispatcher;
   const VisualizerConfiguration& mConfig;
 
-  SDL_Window* window;
-  SDL_Renderer* renderer;
-  SDL_Texture* texture;
+  SdlWrapper sdlWrapper;
+
   const Sample dataChannelMask = 0;
   const Sample vSyncChannelMask = 0;
   const Sample hSyncChannelMask = 0;
