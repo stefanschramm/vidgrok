@@ -1,26 +1,25 @@
 #include "HardwareDataSource.h"
-#include "src/DataDispatcher.h"
+#include "DataDispatcher.h"
+#include "DataSource.h"
 #include <exception>
 #include <iostream>
 #include <ostream>
 #include <stdexcept>
 
 HardwareDataSource::HardwareDataSource(
-  DataDispatcher& dataDispatcher,
+  SampleDataDispatcher& dataDispatcher,
   const DataSourceConfiguration& config
-) : mDataDispatcher(dataDispatcher),
-    mConfig(config),
-    context(sigrok::Context::create()),
+) : DataSource(dataDispatcher, config),
     device(getDevice(mConfig.driverName)) {
   if (!device) {
     throw std::runtime_error(mConfig.driverName ? "Device not found." : "No device found.");
   }
   if (!isValidSampleRate(mConfig.sampleRate)) {
-    throw std::runtime_error("Sample rate is not valid for this device.");
+    // throw std::runtime_error("Sample rate is not valid for this device.");
   }
 }
 
-void HardwareDataSource::operator()() {
+void HardwareDataSource::run() {
   try {
     for (auto channelIndex : mConfig.enabledChannels) {
       device->channels().at(channelIndex)->set_enabled(true);
@@ -34,9 +33,11 @@ void HardwareDataSource::operator()() {
     session->add_datafeed_callback([this](std::shared_ptr<sigrok::Device> device, std::shared_ptr<sigrok::Packet> packet) {
       handlePacket(device, packet);
     });
-    session->start();
 
-    session->run(); // event loop, exited when session->stop() is called
+    while (!mDataDispatcher.isClosed()) {
+      session->start();
+      session->run(); // event loop, exited when session->stop() is called
+    }
 
     device->close();
   } catch (std::exception& e) {
@@ -101,24 +102,4 @@ std::shared_ptr<sigrok::HardwareDevice> HardwareDataSource::getDevice(std::optio
   }
 
   return nullptr;
-}
-
-void HardwareDataSource::handlePacket(
-  [[maybe_unused]] std::shared_ptr<sigrok::Device> device,
-  std::shared_ptr<sigrok::Packet> packet
-) {
-  if (packet->type()->id() != SR_DF_LOGIC) {
-    return; // ignore non-logic packets
-  }
-  auto logic = std::dynamic_pointer_cast<sigrok::Logic>(packet->payload());
-  if (logic->data_length() == 0) {
-    throw std::runtime_error("Got packet with 0 samples.");
-  }
-  if (logic->unit_size() > sizeof(Sample)) {
-    throw std::runtime_error("Size of received samples is bigger than expected.");
-  }
-  bool stopProducing = !mDataDispatcher.put(Samples((Sample*)logic->data_pointer(), logic->data_length()));
-  if (stopProducing) {
-    session->stop();
-  }
 }

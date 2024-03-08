@@ -17,11 +17,12 @@
 
 #include "DataDispatcher.h"
 #include "DataVisualizer.h"
-#include "HardwareDataSource.h"
 #include "OptionProcessing.h"
+#include "DataSource.h"
 #include <cxxopts.hpp>
 #include <exception>
 #include <iostream>
+#include <memory>
 #include <thread>
 
 int main(int argc, char** argv) {
@@ -29,28 +30,25 @@ int main(int argc, char** argv) {
 
   try {
     auto optionalProgramConfiguration = OptionProcessing::process(argc, argv);
+
     if (!optionalProgramConfiguration) {
       return 0; // help has been displayed
     }
-    programConfig = optionalProgramConfiguration.value();
-  } catch (std::exception& e) {
-    std::cerr << "Error while processing arguments: " << e.what() << std::endl;
-    return 1;
-  }
 
-  try {
-    DataDispatcher dataDispatcher;
-    HardwareDataSource dataSource(dataDispatcher, programConfig.dataSourceConfig);
+    programConfig = optionalProgramConfiguration.value();
+
+    SampleDataDispatcher dataDispatcher;
+
     DataVisualizer visualizer(dataDispatcher, programConfig.visualizerConfig);
 
-    // main loop of data source
-    std::thread dataSourceThread(dataSource);
-
-    // main loop
-    visualizer();
-
+    std::thread dataSourceThread([&dataDispatcher, &programConfig]() {
+      DataSource::create(dataDispatcher, programConfig.dataSourceConfig)->run(); // main loop of data source
+    });
+    
+    visualizer.run(); // main loop
     dataDispatcher.close();
     dataSourceThread.join();
+
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 1;

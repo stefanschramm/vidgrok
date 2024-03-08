@@ -47,14 +47,16 @@ SdlWrapper::~SdlWrapper() {
   SDL_Quit();
 }
 
-Event SdlWrapper::pollEvent() {
+bool SdlWrapper::quitEventOccured() {
   SDL_Event event;
-  if (SDL_PollEvent(&event)) {
+  bool quit = false;
+  while (SDL_PollEvent(&event)) {
     if (event.type == SDL_QUIT) {
-      return Event::QUIT;
+      quit = true;
     }
   }
-  return Event::NONE;
+
+  return quit;
 }
 
 void SdlWrapper::lockTexture(Pixel** pixels) {

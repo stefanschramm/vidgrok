@@ -25,10 +25,11 @@ std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** a
   addOption("highlight-vsync", "Visualize vertical synchronisation", value<bool>());
   addOption("highlight-hsync", "Visualize horizontal synchronisation", value<bool>());
   addOption("hidden-data", "Render (hidden) data in blanking areas", value<bool>());
-  addOption("synced-rendering", "Render image only on vertical syncs", value<bool>());
-  addOption("s,samplerate", "Sample rate in Hz", value<uint64_t>()->default_value(to_string(dataSourceConfig.sampleRate)));
+  addOption("render-synced", "Render image only on vertical syncs", value<bool>());
+  addOption("s,sample-rate", "Sample rate in Hz", value<uint64_t>()->default_value(to_string(dataSourceConfig.sampleRate)));
   addOption("d,driver", "libsigrok capturing driver to use. First encountered non-demo device is used by default.", value<std::string>()); // example: fx2lafw
-  addOption("baudrates", "list available baudrates", value<bool>());
+  addOption("i,input-file", "Load recorded session (Pulseview/sigrok-cli) instead of using device directly", value<std::string>());
+  addOption("k,keep-going", "Try to continue capturing even after device driver's session has ended. Will loop forever in combination with recorded sessions (--input-file).", value<bool>());
   addOption("h,help", "Print usage");
 
   auto result = options.parse(argc, argv);
@@ -52,7 +53,7 @@ std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** a
   visualizerConfig.highlightVSync = result["highlight-vsync"].as<bool>();
   visualizerConfig.highlightHSync = result["highlight-hsync"].as<bool>();
   visualizerConfig.renderHiddenData = result["hidden-data"].as<bool>();
-  visualizerConfig.syncedRendering = result["synced-rendering"].as<bool>();
+  visualizerConfig.renderSynced = result["render-synced"].as<bool>();
 
   auto maxChannels = sizeof(Sample) * 8 - 1;
   if (visualizerConfig.dataChannel > maxChannels) {
@@ -65,8 +66,10 @@ std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** a
     throw std::runtime_error(std::string("Maximum value for --hsync is ") + std::to_string(maxChannels));
   }
 
-  dataSourceConfig.sampleRate = result["samplerate"].as<uint64_t>();
+  dataSourceConfig.sampleRate = result["sample-rate"].as<uint64_t>();
   dataSourceConfig.driverName = result.count("driver") ? std::optional<std::string>(result["driver"].as<std::string>()) : std::optional<std::string>();
+  dataSourceConfig.inputFile = result.count("input-file") ? std::optional<std::string>(result["input-file"].as<std::string>()) : std::optional<std::string>();
+  dataSourceConfig.keepGoing = result["keep-going"].as<bool>();
   dataSourceConfig.enabledChannels = std::set<uint8_t>({
     visualizerConfig.dataChannel,
     visualizerConfig.vSyncChannel,

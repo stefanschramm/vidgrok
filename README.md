@@ -32,6 +32,10 @@ For displaying a video signal, the logic analyzer needs to be connected to these
 - Pixel data: A22 Pin 10
 - Sample rate: 12000000 Hz
 
+### Example (VGA)
+
+    --highlight-vsync --highlight-hsync --samplerate 24000000 --width 850 --height 500 --invert-vsync
+
 ## Authors
 
 Stefan Schramm (<mail@stefanschramm.net>)

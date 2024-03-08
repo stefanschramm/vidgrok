@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SDL2/SDL.h>
 #include <cstdint>
 
@@ -5,6 +7,7 @@ using Pixel = uint32_t;
 
 enum class Event {
   NONE,
+  OTHER,
   QUIT,
 };
 
@@ -13,7 +16,7 @@ public:
   SdlWrapper(int width, int height);
   ~SdlWrapper();
 
-  Event pollEvent();
+  bool quitEventOccured();
   void lockTexture(Pixel** pixels);
   void unlockTexture();
   void render();

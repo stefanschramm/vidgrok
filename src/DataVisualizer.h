@@ -19,24 +19,24 @@ struct VisualizerConfiguration {
   bool highlightVSync = false;
   bool highlightHSync = false;
   bool renderHiddenData = false;
-  bool syncedRendering = false;
+  bool renderSynced = false;
 };
 
 class DataVisualizer {
 public:
   DataVisualizer(
-    DataDispatcher& dataDispatcher,
+    SampleDataDispatcher& dataDispatcher,
     const VisualizerConfiguration& config
   );
 
   // Main loop: Fetches new samples (if available), processes/renders them and handles events.
-  void operator()();
+  void run();
 
 private:
   inline void process(Samples samples);
   [[nodiscard]] inline Pixel getPixelValue(bool vSyncActive, bool hSyncActive, Sample data);
 
-  DataDispatcher& mDataDispatcher;
+  SampleDataDispatcher& mDataDispatcher;
   const VisualizerConfiguration& mConfig;
 
   SdlWrapper sdlWrapper;

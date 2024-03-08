@@ -1,5 +1,7 @@
-#include "src/DataVisualizer.h"
-#include "src/HardwareDataSource.h"
+#pragma once
+
+#include "DataSource.h"
+#include "DataVisualizer.h"
 #include <cxxopts.hpp>
 
 struct ProgramConfiguration {

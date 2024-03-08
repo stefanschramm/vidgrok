@@ -1,7 +1,8 @@
 #include "DataVisualizer.h"
+#include <chrono>
 
 DataVisualizer::DataVisualizer(
-  DataDispatcher& dataDispatcher,
+  SampleDataDispatcher& dataDispatcher,
   const VisualizerConfiguration& config
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
@@ -11,7 +12,10 @@ DataVisualizer::DataVisualizer(
     hSyncChannelMask(1 << mConfig.hSyncChannel) {
 }
 
-void DataVisualizer::operator()() {
+void DataVisualizer::run() {
+  auto minimalRenderPause = std::chrono::milliseconds(20); // = 50 fps
+  auto lastRendering = std::chrono::system_clock::now() - minimalRenderPause;
+  // TODO: When a recorded session is played back, the packets are much bigger than during normal capturing. Insert some wait somewhere to slow down playback to real (recorded) time.
   while (true) {
     auto optionalData = mDataDispatcher.get(std::chrono::milliseconds(250));
     if (optionalData) {
@@ -19,7 +23,20 @@ void DataVisualizer::operator()() {
       mDataDispatcher.clear();
     }
 
-    if (sdlWrapper.pollEvent() == Event::QUIT) {
+    if (!mConfig.renderSynced) {
+      auto currentTime = std::chrono::system_clock::now();
+      if (currentTime - lastRendering >= minimalRenderPause) {
+        sdlWrapper.render();
+        lastRendering = currentTime;
+      }
+    }
+    
+    if (mDataDispatcher.isClosed()) {
+      break;
+    }
+
+    if (sdlWrapper.quitEventOccured()) {
+      mDataDispatcher.close();
       break;
     }
   }
@@ -42,7 +59,7 @@ void DataVisualizer::process(Samples samples) {
 
     if (verticalTriggered) {
       position = 0; // start of frame
-      if (mConfig.syncedRendering) {
+      if (mConfig.renderSynced) {
         sdlWrapper.unlockTexture();
         sdlWrapper.render();
         sdlWrapper.lockTexture(&pixels);
@@ -61,10 +78,6 @@ void DataVisualizer::process(Samples samples) {
   }
 
   sdlWrapper.unlockTexture();
-
-  if (!mConfig.syncedRendering) {
-    sdlWrapper.render();
-  }
 }
 
 Pixel DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, Sample data) {
