@@ -3,7 +3,6 @@
 #include "DataDispatcher.h"
 #include <libsigrokcxx/libsigrokcxx.hpp>
 
-
 struct DataSourceConfiguration {
   uint64_t sampleRate = 12000000;
   std::optional<std::string> driverName = std::optional<std::string>();
