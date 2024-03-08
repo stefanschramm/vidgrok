@@ -15,10 +15,11 @@ std::unique_ptr<DataSource> DataSource::create(
   SampleDataDispatcher &dataDispatcher,
   const DataSourceConfiguration &config
 ) {
-  return config.inputFile
-    ? (std::unique_ptr<DataSource>)std::make_unique<RecordedSessionDataSource>(dataDispatcher, config)
-    : (std::unique_ptr<DataSource>)std::make_unique<HardwareDataSource>(dataDispatcher, config)
-  ;
+  if (config.inputFile) {
+    return std::make_unique<RecordedSessionDataSource>(dataDispatcher, config);
+  } else {
+    return std::make_unique<HardwareDataSource>(dataDispatcher, config);
+  }
 }
 
 void DataSource::handlePacket(
