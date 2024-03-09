@@ -14,7 +14,7 @@ enum class Event {
 
 class SdlWrapper {
 public:
-  SdlWrapper(int width, int height, std::string windowTitle);
+  SdlWrapper(int width, int height, const std::string& windowTitle);
   ~SdlWrapper();
 
   bool quitEventOccured();
