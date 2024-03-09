@@ -6,12 +6,6 @@
 
 using Pixel = uint32_t;
 
-enum class Event {
-  NONE,
-  OTHER,
-  QUIT,
-};
-
 class SdlWrapper {
 public:
   SdlWrapper(int width, int height, const std::string& windowTitle);
