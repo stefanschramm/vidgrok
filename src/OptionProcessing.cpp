@@ -1,5 +1,6 @@
 #include "OptionProcessing.h"
 #include <cxxopts.hpp>
+#include <iostream>
 
 std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** argv) {
   using cxxopts::value;

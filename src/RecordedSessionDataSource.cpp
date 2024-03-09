@@ -1,4 +1,4 @@
-#include "src/RecordedSessionDataSource.h"
+#include "RecordedSessionDataSource.h"
 #include <iostream>
 #include <libsigrok/libsigrok.h>
 #include <libsigrokcxx/libsigrokcxx.hpp>
