@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <cstdint>
+#include <string>
 
 using Pixel = uint32_t;
 
@@ -13,7 +14,7 @@ enum class Event {
 
 class SdlWrapper {
 public:
-  SdlWrapper(int width, int height);
+  SdlWrapper(int width, int height, std::string windowTitle);
   ~SdlWrapper();
 
   bool quitEventOccured();

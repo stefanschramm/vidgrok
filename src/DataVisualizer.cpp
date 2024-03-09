@@ -6,7 +6,7 @@ DataVisualizer::DataVisualizer(
   const VisualizerConfiguration& config
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
-    sdlWrapper(mConfig.width, mConfig.height),
+    sdlWrapper(mConfig.width, mConfig.height, "vidgrok"),
     dataChannelMask(1 << mConfig.dataChannel),
     vSyncChannelMask(1 << mConfig.vSyncChannel),
     hSyncChannelMask(1 << mConfig.hSyncChannel) {

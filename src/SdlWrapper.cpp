@@ -2,13 +2,13 @@
 #include "SDL_video.h"
 #include <stdexcept>
 
-SdlWrapper::SdlWrapper(int width, int height) {
+SdlWrapper::SdlWrapper(int width, int height, std::string windowTitle) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
     throw std::runtime_error("Unable to initialize SDL" + std::string(SDL_GetError()));
   }
 
   window = SDL_CreateWindow(
-    "Signal Visualization",
+    windowTitle.c_str(),
     SDL_WINDOWPOS_UNDEFINED,
     SDL_WINDOWPOS_UNDEFINED,
     width,
