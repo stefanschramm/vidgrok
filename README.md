@@ -38,13 +38,16 @@ The detailed list of possible command line arguments can be obtained by
 vidgrok --help
 ```
 
-### Example (Robotron Z 1013)
+## Examples
+
+### Robotron Z 1013
 
 The video signal of Robotron Z 1013 can be captured with a sample rate of 12 MHz by directly connecting to the logic ICs like this:
 
-- VSync A6 Pin 12 (Channel 0)
-- HSync A9 Pin 11 (Channel 1)
-- Data A32 Pin 12 (Channel 2)
+- Ground: e.g. modulator enclosoure
+- VSync: A6 Pin 12
+- HSync: A9 Pin 11
+- Data: A32 Pin 12
 
 Calling vidgrok with these arguments produces the output below.
 
@@ -56,14 +59,14 @@ vidgrok --sample-rate 12000000 --vsync 0 --hsync 1 --data 2 --invert-data --high
 
 The blue area corresponds to the horizontal and the red area to the vertical blanking intervals.
 
-### Example (VGA)
+### VGA (old 386 laptop)
 
 A really bad image can be obtained from VGA resolution output (640x480) with a sample rate of 24 MHz when directly connecting to the 15-pin D-sub connector:
 
-- Ground Pin 6
-- VSync Pin 14
-- HSync Pin 13
-- Data Pin 1 (Red)
+- Ground: Pin 6
+- VSync: Pin 14
+- HSync: Pin 13
+- Data: Pin 1 (Red)
  
 ```
 vidgrok --sample-rate 24000000 --vsync 0 --hsync 1 --data 2 --invert-vsync --highlight-vsync --highlight-hsync --width 850 --height 500
@@ -72,6 +75,24 @@ vidgrok --sample-rate 24000000 --vsync 0 --hsync 1 --data 2 --invert-vsync --hig
 Since the color/intensity data is an analog signal, only the bright pixels trigger the threshold for the input channel. The screenshot shows the MS DOS Editor.
 
 ![VGA 640x480 signal (DOS Editor)](doc/vga_640x480_24mhz.png)
+
+### Atari 1040 STF
+
+The [Atari ST's digital RGB video output](https://info-coach.fr/atari/hardware/interfaces.php#atari_video_connector) works with 8 colors (3 bit) and 12 MHz sample rate.
+
+- Ground: Pin 13
+- VSync: Pin 12
+- HSync: Pin 9
+- Red: Pin 7
+- Green: Pin 6
+- Blue: Pin 10
+
+
+```
+vidgrok --sample-rate 12000000 --vsync 0 --hsync 1 --data 234 --highlight-vsync --highlight-hsync --width 800 --height 330
+```
+
+![Atari](doc/atari_1040_stf_12mhz.png)
 
 ## Authors
 

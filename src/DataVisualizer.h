@@ -8,9 +8,11 @@
 struct VisualizerConfiguration {
   int width = 800;
   int height = 330;
-  uint8_t dataChannel = 2;
   uint8_t vSyncChannel = 0;
   uint8_t hSyncChannel = 1;
+  uint8_t dataRedChannel = 2;
+  uint8_t dataGreenChannel = 2;
+  uint8_t dataBlueChannel = 2;
   bool invertData = false;
   bool invertVSync = false;
   bool invertHSync = false;
@@ -41,9 +43,11 @@ private:
 
   SdlWrapper sdlWrapper;
 
-  const Sample dataChannelMask = 0;
   const Sample vSyncChannelMask = 0;
   const Sample hSyncChannelMask = 0;
+  const Sample dataRedChannelMask = 0;
+  const Sample dataGreenChannelMask = 0;
+  const Sample dataBlueChannelMask = 0;
   long int position = 0;
   bool previousSampleVSyncActive = false;
   bool previousSampleHSyncActive = false;

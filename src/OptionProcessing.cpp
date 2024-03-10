@@ -15,9 +15,9 @@ std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** a
   auto addOption = options.add_options(); // not chaining it because of clang-format :/
   addOption("width", "Window width", value<int>()->default_value(to_string(visualizerConfig.width)));
   addOption("height", "Window height", value<int>()->default_value(to_string(visualizerConfig.height)));
-  addOption("data", "Data channel number", value<uint8_t>()->default_value(to_string(visualizerConfig.dataChannel)));
   addOption("vsync", "Vertical sync channel number", value<uint8_t>()->default_value(to_string(visualizerConfig.vSyncChannel)));
   addOption("hsync", "Horizontal sync channel number", value<uint8_t>()->default_value(to_string(visualizerConfig.hSyncChannel)));
+  addOption("data", "Data channel number(s). Either a single digit for monochrome or 3 digits for 8 bit RGB-color (e.g. --data 2 or --data 234) ", value<std::string>()->default_value(to_string(visualizerConfig.dataRedChannel)));
   addOption("invert-data", "Invert data channel input", value<bool>());
   addOption("invert-vsync", "Invert vertical sync channel input", value<bool>());
   addOption("invert-hsync", "Invert horizontal sync channel input", value<bool>());
@@ -41,9 +41,23 @@ std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** a
     return std::optional<ProgramConfiguration>();
   }
 
+  auto dataChannels = result["data"].as<std::string>();
+  if (dataChannels.size() == 1) {
+    // monochrome - same channel is mapped to all colors (default)
+    visualizerConfig.dataRedChannel = stoi(dataChannels.substr(0, 1));
+    visualizerConfig.dataGreenChannel = visualizerConfig.dataRedChannel;
+    visualizerConfig.dataBlueChannel = visualizerConfig.dataRedChannel;
+  } else if (dataChannels.size() == 3) {
+    // individual 3-bit colors
+    visualizerConfig.dataRedChannel = stoi(dataChannels.substr(0, 1));
+    visualizerConfig.dataGreenChannel = stoi(dataChannels.substr(1, 1));
+    visualizerConfig.dataBlueChannel = stoi(dataChannels.substr(2, 1));
+  } else {
+    throw std::runtime_error("Argument --data can only be a single digit (e.g. --data 2) or three digits (e.g. --data 234)");
+  }
+
   visualizerConfig.width = result["width"].as<int>();
   visualizerConfig.height = result["height"].as<int>();
-  visualizerConfig.dataChannel = result["data"].as<uint8_t>();
   visualizerConfig.vSyncChannel = result["vsync"].as<uint8_t>();
   visualizerConfig.hSyncChannel = result["hsync"].as<uint8_t>();
   visualizerConfig.invertData = result["invert-data"].as<bool>();
@@ -57,8 +71,8 @@ std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** a
   visualizerConfig.renderSynced = result["render-synced"].as<bool>();
 
   auto maxChannels = sizeof(Sample) * 8 - 1;
-  if (visualizerConfig.dataChannel > maxChannels) {
-    throw std::runtime_error(std::string("Maximum value for --data is ") + std::to_string(maxChannels));
+  if (visualizerConfig.dataRedChannel > maxChannels || visualizerConfig.dataGreenChannel > maxChannels || visualizerConfig.dataBlueChannel > maxChannels) {
+    throw std::runtime_error(std::string("Maximum channel number (digit) to pass via --data is ") + std::to_string(maxChannels));
   }
   if (visualizerConfig.vSyncChannel > maxChannels) {
     throw std::runtime_error(std::string("Maximum value for --vsync is ") + std::to_string(maxChannels));
@@ -72,7 +86,9 @@ std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** a
   dataSourceConfig.inputFile = result.count("input-file") ? std::optional<std::string>(result["input-file"].as<std::string>()) : std::optional<std::string>();
   dataSourceConfig.keepGoing = result["keep-going"].as<bool>();
   dataSourceConfig.enabledChannels = std::set<uint8_t>({
-    visualizerConfig.dataChannel,
+    visualizerConfig.dataRedChannel,
+    visualizerConfig.dataGreenChannel,
+    visualizerConfig.dataBlueChannel,
     visualizerConfig.vSyncChannel,
     visualizerConfig.hSyncChannel,
   });

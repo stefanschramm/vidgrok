@@ -7,9 +7,11 @@ DataVisualizer::DataVisualizer(
 ) : mDataDispatcher(dataDispatcher),
     mConfig(config),
     sdlWrapper(mConfig.width, mConfig.height, "vidgrok"),
-    dataChannelMask(1 << mConfig.dataChannel),
     vSyncChannelMask(1 << mConfig.vSyncChannel),
-    hSyncChannelMask(1 << mConfig.hSyncChannel) {
+    hSyncChannelMask(1 << mConfig.hSyncChannel),
+    dataRedChannelMask(1 << mConfig.dataRedChannel),
+    dataGreenChannelMask(1 << mConfig.dataGreenChannel),
+    dataBlueChannelMask(1 << mConfig.dataBlueChannel) {
 }
 
 void DataVisualizer::run() {
@@ -30,7 +32,7 @@ void DataVisualizer::run() {
         lastRendering = currentTime;
       }
     }
-    
+
     if (mDataDispatcher.isClosed()) {
       break;
     }
@@ -89,8 +91,9 @@ Pixel DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, Sample d
     value |= 0x00003fff;
   }
   if ((!vSyncActive && !hSyncActive) || mConfig.renderHiddenData) {
-    // TODO: support color by using 3 or 6 channels for data (CGA, EGA)
-    value |= ((bool)(data & dataChannelMask) != mConfig.invertData) ? 0xffffffff : 0x00000000;
+    value |= ((bool)(data & dataRedChannelMask) != mConfig.invertData) ? 0xff0000ff : 0x00000000;
+    value |= ((bool)(data & dataGreenChannelMask) != mConfig.invertData) ? 0x00ff00ff : 0x00000000;
+    value |= ((bool)(data & dataBlueChannelMask) != mConfig.invertData) ? 0x0000ffff : 0x00000000;
   }
 
   return value;
