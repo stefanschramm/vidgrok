@@ -16,9 +16,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "DataDispatcher.h"
+#include "DataSource.h"
 #include "DataVisualizer.h"
 #include "OptionProcessing.h"
-#include "DataSource.h"
 #include <cxxopts.hpp>
 #include <exception>
 #include <iostream>
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
     std::thread dataSourceThread([&dataDispatcher, &programConfig]() {
       DataSource::create(dataDispatcher, programConfig.dataSourceConfig)->run(); // main loop of data source
     });
-    
+
     visualizer.run(); // main loop
     dataDispatcher.close();
     dataSourceThread.join();

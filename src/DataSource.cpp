@@ -1,6 +1,6 @@
 #include "DataSource.h"
-#include "RecordedSessionDataSource.h"
 #include "HardwareDataSource.h"
+#include "RecordedSessionDataSource.h"
 #include <memory>
 
 DataSource::DataSource(
@@ -12,8 +12,8 @@ DataSource::DataSource(
 }
 
 std::unique_ptr<DataSource> DataSource::create(
-  SampleDataDispatcher &dataDispatcher,
-  const DataSourceConfiguration &config
+  SampleDataDispatcher& dataDispatcher,
+  const DataSourceConfiguration& config
 ) {
   if (config.inputFile) {
     return std::make_unique<RecordedSessionDataSource>(dataDispatcher, config);
