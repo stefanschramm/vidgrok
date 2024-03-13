@@ -39,10 +39,14 @@ int main(int argc, char** argv) {
 
     SampleDataDispatcher dataDispatcher;
 
+    auto dataSource = DataSource::create(dataDispatcher, programConfig.dataSourceConfig);
+
+    programConfig.visualizerConfig.sampleRate = dataSource->getSampleRate();
+
     DataVisualizer visualizer(dataDispatcher, programConfig.visualizerConfig);
 
-    std::thread dataSourceThread([&dataDispatcher, &programConfig]() {
-      DataSource::create(dataDispatcher, programConfig.dataSourceConfig)->run(); // main loop of data source
+    std::thread dataSourceThread([&dataSource]() {
+      dataSource->run(); // main loop of data source
     });
 
     visualizer.run(); // main loop

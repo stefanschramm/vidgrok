@@ -1,6 +1,5 @@
 #include "RecordedSessionDataSource.h"
 #include <iostream>
-#include <libsigrok/libsigrok.h>
 #include <libsigrokcxx/libsigrokcxx.hpp>
 #include <stdexcept>
 
@@ -12,7 +11,13 @@ RecordedSessionDataSource::RecordedSessionDataSource(
     throw std::runtime_error("No input file was passed.");
   }
   session = context->load_session(mConfig.inputFile.value());
-  // TODO: Is there a way to get the recording sample rate? (It's in the meta data.)
+
+  try {
+    auto gvar = session->devices().at(0)->config_get(sigrok::ConfigKey::SAMPLERATE);
+    sampleRate = Glib::VariantBase::cast_dynamic<Glib::Variant<guint64>>(gvar).get();
+  } catch (sigrok::Error& error) {
+    throw std::runtime_error("Unable to determine sample rate.");
+  }
 }
 
 void RecordedSessionDataSource::run() {

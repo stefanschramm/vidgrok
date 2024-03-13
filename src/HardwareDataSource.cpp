@@ -17,19 +17,21 @@ HardwareDataSource::HardwareDataSource(
   if (!isValidSampleRate(mConfig.sampleRate)) {
     // throw std::runtime_error("Sample rate is not valid for this device.");
   }
+
+  for (auto channelIndex : mConfig.enabledChannels) {
+    device->channels().at(channelIndex)->set_enabled(true);
+  }
+  device->open();
+
+  device->config_set(sigrok::ConfigKey::SAMPLERATE, Glib::Variant<guint64>::create(mConfig.sampleRate));
+  sampleRate = mConfig.sampleRate;
+
+  session = context->create_session();
+  session->add_device(device);
 }
 
 void HardwareDataSource::run() {
   try {
-    for (auto channelIndex : mConfig.enabledChannels) {
-      device->channels().at(channelIndex)->set_enabled(true);
-    }
-    device->open();
-
-    device->config_set(sigrok::ConfigKey::SAMPLERATE, Glib::Variant<guint64>::create(mConfig.sampleRate));
-
-    session = context->create_session();
-    session->add_device(device);
     session->add_datafeed_callback([this](std::shared_ptr<sigrok::Device> device, std::shared_ptr<sigrok::Packet> packet) {
       handlePacket(device, packet);
     });

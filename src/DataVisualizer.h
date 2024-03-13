@@ -22,6 +22,7 @@ struct VisualizerConfiguration {
   bool highlightHSync = false;
   bool renderHiddenData = false;
   bool renderSynced = false;
+  uint64_t sampleRate = 0; // not configurable via command line arguments
 };
 
 class DataVisualizer {

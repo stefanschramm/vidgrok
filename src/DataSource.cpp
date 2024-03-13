@@ -1,6 +1,7 @@
 #include "DataSource.h"
 #include "HardwareDataSource.h"
 #include "RecordedSessionDataSource.h"
+#include <cstdint>
 #include <memory>
 
 DataSource::DataSource(
@@ -20,6 +21,10 @@ std::unique_ptr<DataSource> DataSource::create(
   } else {
     return std::make_unique<HardwareDataSource>(dataDispatcher, config);
   }
+}
+
+uint64_t DataSource::getSampleRate() {
+  return sampleRate;
 }
 
 void DataSource::handlePacket(

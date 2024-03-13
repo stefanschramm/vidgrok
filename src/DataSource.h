@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataDispatcher.h"
+#include <cstdint>
 #include <libsigrokcxx/libsigrokcxx.hpp>
 
 struct DataSourceConfiguration {
@@ -14,6 +15,7 @@ struct DataSourceConfiguration {
 class DataSource {
 public:
   virtual ~DataSource() = default;
+  uint64_t getSampleRate();
   virtual void run() = 0;
   // Create new DataSource based on configuration
   [[nodiscard]] static std::unique_ptr<DataSource> create(SampleDataDispatcher& dataDispatcher, const DataSourceConfiguration& config);
@@ -30,6 +32,8 @@ protected:
 
   SampleDataDispatcher& mDataDispatcher;
   const DataSourceConfiguration& mConfig;
+
+  uint64_t sampleRate = 0;
 
   std::shared_ptr<sigrok::Context> context = nullptr;
   std::shared_ptr<sigrok::Session> session = nullptr;
