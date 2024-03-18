@@ -11,10 +11,10 @@ project(
 
 source_files = [
   'src/main.cpp',
+  'src/App.cpp',
   'src/DataVisualizer.cpp',
   'src/DataSource.cpp',
   'src/HardwareDataSource.cpp',
-  'src/OptionProcessing.cpp',
   'src/RecordedSessionDataSource.cpp',
   'src/SdlWrapper.cpp',
 ]

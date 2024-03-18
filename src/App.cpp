@@ -1,14 +1,46 @@
-#include "OptionProcessing.h"
+#include "App.h"
+#include "DataDispatcher.h"
+#include "DataVisualizer.h"
+#include "DataSource.h"
 #include <cxxopts.hpp>
+#include <exception>
 #include <iostream>
+#include <memory>
+#include <thread>
 
-std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** argv) {
+int App::run(int argc, char** argv) {
+  try {
+    if (!processOptions(argc, argv)) {
+      return 0; // help has been displayed
+    }
+
+    SampleDataDispatcher dataDispatcher;
+
+    auto dataSource = DataSource::create(dataDispatcher, dataSourceConfig);
+
+    visualizerConfig.sampleRate = dataSource->getSampleRate();
+
+    DataVisualizer visualizer(dataDispatcher, visualizerConfig);
+
+    std::thread dataSourceThread([&dataSource]() {
+      dataSource->run(); // main loop of data source
+    });
+    
+    visualizer.run(); // main loop
+    dataDispatcher.close();
+    dataSourceThread.join();
+
+  } catch (std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return 1;
+  }
+
+  return 0;
+}
+
+bool App::processOptions(int argc, char** argv) {
   using cxxopts::value;
   using std::to_string;
-
-  ProgramConfiguration programConfig;
-  auto& visualizerConfig = programConfig.visualizerConfig;
-  auto& dataSourceConfig = programConfig.dataSourceConfig;
 
   cxxopts::Options options("vidgrok", "Visualize video data captured by a logic analyzer");
 
@@ -38,7 +70,7 @@ std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** a
   if (result.count("help")) {
     std::cout << options.help() << std::endl;
 
-    return std::optional<ProgramConfiguration>();
+    return false;
   }
 
   auto dataChannels = result["data"].as<std::string>();
@@ -93,5 +125,5 @@ std::optional<ProgramConfiguration> OptionProcessing::process(int argc, char** a
     visualizerConfig.hSyncChannel,
   });
 
-  return programConfig;
+  return true;
 }

@@ -15,48 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "DataDispatcher.h"
-#include "DataSource.h"
-#include "DataVisualizer.h"
-#include "OptionProcessing.h"
-#include <cxxopts.hpp>
-#include <exception>
-#include <iostream>
-#include <memory>
-#include <thread>
+#include "App.h"
 
 int main(int argc, char** argv) {
-  ProgramConfiguration programConfig;
-
-  try {
-    auto optionalProgramConfiguration = OptionProcessing::process(argc, argv);
-
-    if (!optionalProgramConfiguration) {
-      return 0; // help has been displayed
-    }
-
-    programConfig = optionalProgramConfiguration.value();
-
-    SampleDataDispatcher dataDispatcher;
-
-    auto dataSource = DataSource::create(dataDispatcher, programConfig.dataSourceConfig);
-
-    programConfig.visualizerConfig.sampleRate = dataSource->getSampleRate();
-
-    DataVisualizer visualizer(dataDispatcher, programConfig.visualizerConfig);
-
-    std::thread dataSourceThread([&dataSource]() {
-      dataSource->run(); // main loop of data source
-    });
-
-    visualizer.run(); // main loop
-    dataDispatcher.close();
-    dataSourceThread.join();
-
-  } catch (std::exception& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-    return 1;
-  }
-
-  return 0;
+  App app;
+  app.run(argc, argv);
 }
