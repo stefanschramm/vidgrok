@@ -14,16 +14,16 @@ HardwareDataSource::HardwareDataSource(
   if (!device) {
     throw std::runtime_error(mConfig.driverName ? "Device not found." : "No device found.");
   }
-  if (!isValidSampleRate(mConfig.sampleRate)) {
-    // throw std::runtime_error("Sample rate is not valid for this device.");
-  }
-
   for (auto channelIndex : mConfig.enabledChannels) {
     device->channels().at(channelIndex)->set_enabled(true);
   }
   device->open();
 
-  device->config_set(sigrok::ConfigKey::SAMPLERATE, Glib::Variant<guint64>::create(mConfig.sampleRate));
+  try {
+    device->config_set(sigrok::ConfigKey::SAMPLERATE, Glib::Variant<guint64>::create(mConfig.sampleRate));
+  } catch (std::exception& e) {
+    throw std::runtime_error("Unable to set sample rate. Use sigrok-cli --scan and sigrok-cli --show -d <drivername> to look up supported sample rates.");
+  }
   sampleRate = mConfig.sampleRate;
 
   session = context->create_session();
@@ -45,33 +45,6 @@ void HardwareDataSource::run() {
   } catch (std::exception& e) {
     std::cerr << "Exception in data source thread: " << e.what() << std::endl;
   }
-}
-
-bool HardwareDataSource::isValidSampleRate(uint64_t sampleRate) const {
-  auto gvarDict = device->config_list(sigrok::ConfigKey::SAMPLERATE);
-
-  const uint64_t* elements = nullptr;
-  gsize numElements;
-
-  // TODO: Do some devices require querying "samplerate-steps" instead?
-  GVariant* gvarList = g_variant_lookup_value(
-    gvarDict.gobj(),
-    "samplerates",
-    G_VARIANT_TYPE("at")
-  );
-  if (gvarList) {
-    elements = (const uint64_t*)g_variant_get_fixed_array(gvarList, &numElements, sizeof(uint64_t));
-    for (gsize i = 0; i < numElements; i++) {
-      if (elements[i] == sampleRate) {
-        return true;
-      }
-    }
-    g_variant_unref(gvarList);
-  } else {
-    std::runtime_error("Unable to query valid sample rates.");
-  }
-
-  return false;
 }
 
 // Return either the first device with matching driverName or the first non-demo device.
