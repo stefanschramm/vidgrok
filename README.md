@@ -114,7 +114,7 @@ The red, green and blue signals can go directly to the logic analyzer.
 The LM1881 should be wired as described in the datasheet ("Typical Connection Diagram"): A capacitor (0.1µF) and resistor (680 kOhms) in parallel from Pin 6 to Ground. Composite Sync goes via a 0.1µF capacitor to Pin 2. VSync will be available on Pin 3 and HSync on Pin 5. The +5 V from the Electron can be used to power the LM1881 (Pin 8). Ground goes to Pin 4.
 
 ```
-build/vidgrok --sample-rate 12000000 --vsync 0 --hsync 1 --data 234 --highlight-hsync --highlight-vsync --width 800 --height 330
+vidgrok --sample-rate 12000000 --vsync 0 --hsync 1 --data 234 --highlight-hsync --highlight-vsync --width 800 --height 330
 ```
 
 ![Acorn Electron using video mode 2](doc/acorn_electron_12mhz.png)
