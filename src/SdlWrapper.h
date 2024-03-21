@@ -6,7 +6,7 @@
 
 using Pixel = uint32_t;
 
-class SdlWrapper {
+class SdlWrapper final {
 public:
   SdlWrapper(int width, int height, const std::string& windowTitle);
   ~SdlWrapper();

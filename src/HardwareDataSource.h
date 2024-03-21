@@ -4,7 +4,7 @@
 #include <libsigrokcxx/libsigrokcxx.hpp>
 #include <memory>
 
-class HardwareDataSource : public DataSource {
+class HardwareDataSource final : public DataSource {
 public:
   HardwareDataSource(
     SampleDataDispatcher& dataDispatcher,

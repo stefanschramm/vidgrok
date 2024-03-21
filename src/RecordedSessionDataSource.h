@@ -3,7 +3,7 @@
 #include "DataDispatcher.h"
 #include "DataSource.h"
 
-class RecordedSessionDataSource : public DataSource {
+class RecordedSessionDataSource final : public DataSource {
 public:
   RecordedSessionDataSource(
     SampleDataDispatcher& dataDispatcher,

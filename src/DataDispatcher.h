@@ -11,7 +11,7 @@
 // When the consumer is too slow for the producer, the producer is blocked.
 // When the consumer is faster, it will be blocked until data gets available, but just for a certain time.
 template <typename T>
-class DataDispatcher {
+class DataDispatcher final {
 public:
   // To be called by producer:
   // Put and wait until data was cleared by consumer.

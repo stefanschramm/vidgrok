@@ -2,7 +2,7 @@
 
 #include "src/DataSource.h"
 #include "src/DataVisualizer.h"
-class App {
+class App final {
   public:
     int run(int argc, char** argv);
 

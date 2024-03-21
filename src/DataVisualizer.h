@@ -25,7 +25,7 @@ struct VisualizerConfiguration {
   uint64_t sampleRate = 0; // not configurable via command line arguments
 };
 
-class DataVisualizer {
+class DataVisualizer final {
 public:
   DataVisualizer(
     SampleDataDispatcher& dataDispatcher,
