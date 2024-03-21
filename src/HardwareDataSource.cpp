@@ -44,6 +44,7 @@ void HardwareDataSource::run() {
     device->close();
   } catch (std::exception& e) {
     std::cerr << "Exception in data source thread: " << e.what() << std::endl;
+    mDataDispatcher.close();
   }
 }
 
