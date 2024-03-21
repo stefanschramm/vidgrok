@@ -32,5 +32,6 @@ void RecordedSessionDataSource::run() {
     }
   } catch (std::exception& e) {
     std::cerr << "Exception in data source thread: " << e.what() << std::endl;
+    mDataDispatcher.close();
   }
 }
