@@ -1,7 +1,7 @@
 #pragma once
 
-#include "src/DataSource.h"
-#include "src/DataVisualizer.h"
+#include "DataSource.h"
+#include "DataVisualizer.h"
 class App final {
 public:
   int run(int argc, char** argv);
