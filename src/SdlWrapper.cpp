@@ -13,7 +13,7 @@ SdlWrapper::SdlWrapper(int width, int height, const std::string& windowTitle) {
     SDL_WINDOWPOS_UNDEFINED,
     width,
     height,
-    SDL_WINDOW_OPENGL
+    SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
   );
   if (window == NULL) {
     throw std::runtime_error("Unable to create SDL window");
