@@ -112,6 +112,12 @@ bool App::processOptions(int argc, char** argv) {
   if (visualizerConfig.hSyncChannel > maxChannels) {
     throw std::runtime_error(std::string("Maximum value for --hsync is ") + std::to_string(maxChannels));
   }
+  if (visualizerConfig.width < 1) {
+    throw std::runtime_error("Window width must be greater than 0");
+  }
+  if (visualizerConfig.height < 1) {
+    throw std::runtime_error("Window height must be greater than 0");
+  }
 
   dataSourceConfig.sampleRate = result["sample-rate"].as<uint64_t>();
   dataSourceConfig.driverName = result.count("driver") ? std::optional<std::string>(result["driver"].as<std::string>()) : std::optional<std::string>();
@@ -124,6 +130,16 @@ bool App::processOptions(int argc, char** argv) {
     visualizerConfig.vSyncChannel,
     visualizerConfig.hSyncChannel,
   });
+
+  // Check some contradicting settings
+
+  if (dataSourceConfig.driverName && dataSourceConfig.inputFile) {
+    throw std::runtime_error("Can not use a driver and an input file at the same time.");
+  }
+
+  if (visualizerConfig.disableVSync && visualizerConfig.renderSynced) {
+    throw std::runtime_error("Can not render synchronously when vertical sync is disabled.");
+  }
 
   return true;
 }
