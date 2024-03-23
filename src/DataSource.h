@@ -19,6 +19,7 @@ public:
   virtual void run() = 0;
   // Create new DataSource based on configuration
   [[nodiscard]] static std::unique_ptr<DataSource> create(SampleDataDispatcher& dataDispatcher, const DataSourceConfiguration& config);
+
 protected:
   DataSource(
     SampleDataDispatcher& dataDispatcher,

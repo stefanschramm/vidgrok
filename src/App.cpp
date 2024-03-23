@@ -1,7 +1,7 @@
 #include "App.h"
 #include "DataDispatcher.h"
-#include "DataVisualizer.h"
 #include "DataSource.h"
+#include "DataVisualizer.h"
 #include <cxxopts.hpp>
 #include <exception>
 #include <iostream>
@@ -25,7 +25,7 @@ int App::run(int argc, char** argv) {
     std::thread dataSourceThread([&dataSource]() {
       dataSource->run(); // main loop of data source
     });
-    
+
     visualizer.run(); // main loop
     dataDispatcher.close();
     dataSourceThread.join();
