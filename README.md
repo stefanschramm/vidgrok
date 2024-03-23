@@ -17,6 +17,8 @@ meson compile
 meson install
 ```
 
+Instead of installing the build tools and dependencies directly, it's also possible to use the `build_in_container.sh` script. It will create a Docker container with the above dependencies/build tools, mount the project directory and run the build commands.
+
 ## Usage
 
 For displaying a video signal, [the logic analyzer](https://sigrok.org/wiki/Supported_hardware) needs to be connected to these signals:
