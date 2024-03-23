@@ -1,5 +1,6 @@
 #include "DataVisualizer.h"
 #include <chrono>
+#include <thread>
 
 DataVisualizer::DataVisualizer(
   SampleDataDispatcher& dataDispatcher,
@@ -15,9 +16,6 @@ DataVisualizer::DataVisualizer(
 }
 
 void DataVisualizer::run() {
-  auto minimalRenderPause = std::chrono::milliseconds(20); // = 50 fps
-  auto lastRendering = std::chrono::system_clock::now() - minimalRenderPause;
-  // TODO: When a recorded session is played back, the packets are much bigger than during normal capturing. Insert some wait somewhere to slow down playback to real (recorded) time.
   while (true) {
     auto optionalData = mDataDispatcher.get(std::chrono::milliseconds(250));
     if (optionalData) {
@@ -25,12 +23,9 @@ void DataVisualizer::run() {
       mDataDispatcher.clear();
     }
 
-    if (!mConfig.renderSynced) {
-      auto currentTime = std::chrono::system_clock::now();
-      if (currentTime - lastRendering >= minimalRenderPause) {
-        sdlWrapper.render();
-        lastRendering = currentTime;
-      }
+    // When packets are coming in slowly, we render to refresh the window content, even if there is no new data
+    if (!mConfig.renderSynced && std::chrono::steady_clock::now() >= lastRenderedAt + MINIMAL_RENDER_PAUSE) {
+      render();
     }
 
     if (mDataDispatcher.isClosed()) {
@@ -63,7 +58,7 @@ void DataVisualizer::process(Samples samples) {
       position = 0; // start of frame
       if (mConfig.renderSynced) {
         sdlWrapper.unlockTexture();
-        sdlWrapper.render();
+        render();
         sdlWrapper.lockTexture(&pixels);
       }
     }
@@ -74,6 +69,7 @@ void DataVisualizer::process(Samples samples) {
     previousSampleVSyncActive = vSyncActive;
 
     position++;
+    samplesSinceLastRendering++;
     if (position > mConfig.width * mConfig.height) {
       position = 0;
     }
@@ -97,4 +93,20 @@ Pixel DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, Sample d
   }
 
   return value;
+}
+
+// Render data (the texture is expected to be locked!)
+void DataVisualizer::render() {
+  sdlWrapper.render();
+
+  // Add pause to slow down visualization to match real time (important for recorded sessions)
+  auto recordingDuration = std::chrono::nanoseconds(1000000000 * samplesSinceLastRendering / mConfig.sampleRate);
+  auto now = std::chrono::steady_clock::now();
+  auto renderingDuration = now - lastRenderedAt;
+  auto additionalWaitTime = recordingDuration - renderingDuration;
+  if (additionalWaitTime.count() > 0) {
+    std::this_thread::sleep_for(additionalWaitTime);
+  }
+  lastRenderedAt = now;
+  samplesSinceLastRendering = 0;
 }

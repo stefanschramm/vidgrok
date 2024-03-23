@@ -2,6 +2,7 @@
 
 #include "DataDispatcher.h"
 #include "SdlWrapper.h"
+#include <chrono>
 #include <cstdint>
 
 // Default values should be OK for PAL video
@@ -38,6 +39,7 @@ public:
 private:
   inline void process(Samples samples);
   [[nodiscard]] inline Pixel getPixelValue(bool vSyncActive, bool hSyncActive, Sample data);
+  inline void render();
 
   SampleDataDispatcher& mDataDispatcher;
   const VisualizerConfiguration& mConfig;
@@ -50,6 +52,10 @@ private:
   const Sample dataGreenChannelMask = 0;
   const Sample dataBlueChannelMask = 0;
   long int position = 0;
+  long int samplesSinceLastRendering = 0;
   bool previousSampleVSyncActive = false;
   bool previousSampleHSyncActive = false;
+  std::chrono::time_point<std::chrono::steady_clock> lastRenderedAt = std::chrono::steady_clock::now();
+
+  const std::chrono::milliseconds MINIMAL_RENDER_PAUSE = std::chrono::milliseconds(20); // = 50 fps
 };
