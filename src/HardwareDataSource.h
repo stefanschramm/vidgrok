@@ -10,7 +10,7 @@ public:
     SampleDataDispatcher& dataDispatcher,
     const DataSourceConfiguration& config
   );
-  virtual void run();
+  void run() override;
 
 private:
   [[nodiscard]] std::shared_ptr<sigrok::HardwareDevice> getDevice(std::optional<std::string> driverName) const;

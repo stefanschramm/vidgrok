@@ -9,5 +9,5 @@ public:
     SampleDataDispatcher& dataDispatcher,
     const DataSourceConfiguration& config
   );
-  virtual void run();
+  void run() override;
 };
