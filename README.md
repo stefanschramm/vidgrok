@@ -34,7 +34,7 @@ When calling without arguments, the following defaults are assumed:
 vidgrok --sample-rate 12000000 --vsync 0 --hsync 1 --data 2 --width 800 --height 330
 ```
 
-When RGB output is available `--data 234` and can be used to achieve colored rendering (in this example Red: Channel 2, Green: Channel 3, Blue: Channel 4).
+When RGB output is available `--data 234` can be used to achieve colored rendering (in this example Red: Channel 2, Green: Channel 3, Blue: Channel 4).
 
 The detailed list of possible command line arguments can be obtained by
 
