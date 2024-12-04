@@ -34,12 +34,12 @@ public:
   );
 
   // Main loop: Fetches new samples (if available), processes/renders them and handles events.
-  void run();
+  auto run() -> void;
 
 private:
-  inline void process(Samples samples);
-  [[nodiscard]] inline Pixel getPixelValue(bool vSyncActive, bool hSyncActive, Sample data);
-  inline void render();
+  inline auto process(Samples samples) -> void;
+  [[nodiscard]] inline auto getPixelValue(bool vSyncActive, bool hSyncActive, Sample data) -> Pixel;
+  inline auto render() -> void;
 
   SampleDataDispatcher& mDataDispatcher;
   const VisualizerConfiguration& mConfig;

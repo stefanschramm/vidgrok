@@ -20,7 +20,7 @@ RecordedSessionDataSource::RecordedSessionDataSource(
   }
 }
 
-void RecordedSessionDataSource::run() {
+auto RecordedSessionDataSource::run() -> void {
   try {
     session->add_datafeed_callback([this](std::shared_ptr<sigrok::Device> device, std::shared_ptr<sigrok::Packet> packet) {
       handlePacket(device, packet);

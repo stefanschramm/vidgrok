@@ -15,10 +15,10 @@ struct DataSourceConfiguration {
 class DataSource {
 public:
   virtual ~DataSource() = default;
-  uint64_t getSampleRate();
-  virtual void run() = 0;
+  auto getSampleRate() -> uint64_t;
+  virtual auto run() -> void = 0;
   // Create new DataSource based on configuration
-  [[nodiscard]] static std::unique_ptr<DataSource> create(SampleDataDispatcher& dataDispatcher, const DataSourceConfiguration& config);
+  [[nodiscard]] static auto create(SampleDataDispatcher& dataDispatcher, const DataSourceConfiguration& config) -> std::unique_ptr<DataSource>;
 
 protected:
   DataSource(
@@ -26,10 +26,10 @@ protected:
     const DataSourceConfiguration& config
   );
   // Packet handling common for all DataSources
-  void handlePacket(
+  auto handlePacket(
     [[maybe_unused]] std::shared_ptr<sigrok::Device> device,
     std::shared_ptr<sigrok::Packet> packet
-  );
+  ) -> void;
 
   SampleDataDispatcher& mDataDispatcher;
   const DataSourceConfiguration& mConfig;

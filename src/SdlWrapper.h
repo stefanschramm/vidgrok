@@ -11,10 +11,10 @@ public:
   SdlWrapper(int width, int height, const std::string& windowTitle);
   ~SdlWrapper();
 
-  bool quitEventOccured();
-  void lockTexture(Pixel** pixels);
-  void unlockTexture();
-  void render();
+  auto quitEventOccured() -> bool;
+  auto lockTexture(Pixel** pixels) -> void;
+  auto unlockTexture() -> void;
+  auto render() -> void;
 
 private:
   SDL_Window* window;

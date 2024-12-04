@@ -15,7 +15,7 @@ DataVisualizer::DataVisualizer(
     dataBlueChannelMask(1 << mConfig.dataBlueChannel) {
 }
 
-void DataVisualizer::run() {
+auto DataVisualizer::run() -> void {
   while (true) {
     auto optionalData = mDataDispatcher.get(std::chrono::milliseconds(250));
     if (optionalData) {
@@ -39,7 +39,7 @@ void DataVisualizer::run() {
   }
 }
 
-void DataVisualizer::process(Samples samples) {
+auto DataVisualizer::process(Samples samples) -> void {
   Pixel* pixels = nullptr;
 
   sdlWrapper.lockTexture(&pixels);
@@ -78,7 +78,7 @@ void DataVisualizer::process(Samples samples) {
   sdlWrapper.unlockTexture();
 }
 
-Pixel DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, Sample data) {
+auto DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, Sample data) -> Pixel {
   Pixel value = 0;
   if (mConfig.highlightVSync && vSyncActive) {
     value |= 0x3f0000ff;
@@ -96,7 +96,7 @@ Pixel DataVisualizer::getPixelValue(bool vSyncActive, bool hSyncActive, Sample d
 }
 
 // Render data (the texture is expected to be locked!)
-void DataVisualizer::render() {
+auto DataVisualizer::render() -> void {
   sdlWrapper.render();
 
   // Add pause to slow down visualization to match real time (important for recorded sessions)

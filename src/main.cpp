@@ -17,7 +17,7 @@
 
 #include "App.h"
 
-int main(int argc, char** argv) {
+auto main(int argc, char** argv) -> int {
   App app;
   app.run(argc, argv);
 }

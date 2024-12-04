@@ -30,7 +30,7 @@ HardwareDataSource::HardwareDataSource(
   session->add_device(device);
 }
 
-void HardwareDataSource::run() {
+auto HardwareDataSource::run() -> void {
   try {
     session->add_datafeed_callback([this](std::shared_ptr<sigrok::Device> device, std::shared_ptr<sigrok::Packet> packet) {
       handlePacket(device, packet);
@@ -49,7 +49,7 @@ void HardwareDataSource::run() {
 }
 
 // Return either the first device with matching driverName or the first non-demo device.
-std::shared_ptr<sigrok::HardwareDevice> HardwareDataSource::getDevice(std::optional<std::string> driverName) const {
+auto HardwareDataSource::getDevice(std::optional<std::string> driverName) -> std::shared_ptr<sigrok::HardwareDevice> const {
   for (auto& [key, driver] : context->drivers()) {
     const auto keys = driver->config_keys();
     if (!keys.count(sigrok::ConfigKey::LOGIC_ANALYZER)) {

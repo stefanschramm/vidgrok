@@ -12,10 +12,10 @@ DataSource::DataSource(
     context(sigrok::Context::create()) {
 }
 
-std::unique_ptr<DataSource> DataSource::create(
+auto DataSource::create(
   SampleDataDispatcher& dataDispatcher,
   const DataSourceConfiguration& config
-) {
+) -> std::unique_ptr<DataSource> {
   if (config.inputFile) {
     return std::make_unique<RecordedSessionDataSource>(dataDispatcher, config);
   } else {
@@ -23,14 +23,14 @@ std::unique_ptr<DataSource> DataSource::create(
   }
 }
 
-uint64_t DataSource::getSampleRate() {
+auto DataSource::getSampleRate() -> uint64_t {
   return sampleRate;
 }
 
-void DataSource::handlePacket(
+auto DataSource::handlePacket(
   [[maybe_unused]] std::shared_ptr<sigrok::Device> device,
   std::shared_ptr<sigrok::Packet> packet
-) {
+) -> void {
   if (packet->type()->id() == SR_DF_END) {
     if (!mConfig.keepGoing) {
       mDataDispatcher.close();

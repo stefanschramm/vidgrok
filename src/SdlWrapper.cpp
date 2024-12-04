@@ -47,7 +47,7 @@ SdlWrapper::~SdlWrapper() {
   SDL_Quit();
 }
 
-bool SdlWrapper::quitEventOccured() {
+auto SdlWrapper::quitEventOccured() -> bool {
   SDL_Event event;
   bool quit = false;
   while (SDL_PollEvent(&event)) {
@@ -59,16 +59,16 @@ bool SdlWrapper::quitEventOccured() {
   return quit;
 }
 
-void SdlWrapper::lockTexture(Pixel** pixels) {
+auto SdlWrapper::lockTexture(Pixel** pixels) -> void {
   int pitch;
   SDL_LockTexture(texture, NULL, (void**)pixels, &pitch);
 }
 
-void SdlWrapper::unlockTexture() {
+auto SdlWrapper::unlockTexture() -> void {
   SDL_UnlockTexture(texture);
 }
 
-void SdlWrapper::render() {
+auto SdlWrapper::render() -> void {
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, texture, NULL, NULL);
   SDL_RenderPresent(renderer);

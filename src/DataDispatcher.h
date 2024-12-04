@@ -15,7 +15,7 @@ class DataDispatcher final {
 public:
   // To be called by producer:
   // Put and wait until data was cleared by consumer.
-  void put(T data) {
+  auto put(T data) -> void {
     std::unique_lock lk(dataMutex);
 
     if (closed) {
@@ -39,21 +39,21 @@ public:
 
   // To be called by consumer:
   // Clear data to allow producer to continue passing data.
-  void clear() {
+  auto clear() -> void {
     std::unique_lock lk(dataMutex);
     mData.reset();
     conditionVariable.notify_all();
   }
 
   // Close channel (producer has no more data or consumer doesn't want any more).
-  void close() {
+  auto close() -> void {
     std::unique_lock lk(closedMutex);
     closed = true;
     clear(); // notifies producer
   }
 
   // Determine wether the channel has been closed.
-  bool isClosed() {
+  auto isClosed() -> bool {
     std::unique_lock lk(closedMutex);
     return closed;
   }

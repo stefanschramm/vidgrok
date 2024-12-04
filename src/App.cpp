@@ -8,7 +8,7 @@
 #include <memory>
 #include <thread>
 
-int App::run(int argc, char** argv) {
+auto App::run(int argc, char** argv) -> int {
   try {
     if (!processOptions(argc, argv)) {
       return 0; // help has been displayed
@@ -38,7 +38,7 @@ int App::run(int argc, char** argv) {
   return 0;
 }
 
-bool App::processOptions(int argc, char** argv) {
+auto App::processOptions(int argc, char** argv) -> bool {
   using cxxopts::value;
   using std::to_string;
 

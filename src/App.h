@@ -4,10 +4,10 @@
 #include "DataVisualizer.h"
 class App final {
 public:
-  int run(int argc, char** argv);
+  auto run(int argc, char** argv) -> int;
 
 private:
-  bool processOptions(int argc, char** argv);
+  auto processOptions(int argc, char** argv) -> bool;
 
   VisualizerConfiguration visualizerConfig;
   DataSourceConfiguration dataSourceConfig;
